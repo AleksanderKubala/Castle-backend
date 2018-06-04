@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class TerrainTypeService {
@@ -19,7 +20,7 @@ public class TerrainTypeService {
         this.terrainRepository = terrainRepository;
     }
 
-    public Collection<TerrainType> retrieveAllTerrain() {
+    public List<TerrainType> retrieveAllTerrain() {
         return terrainRepository.findAll();
     }
 }

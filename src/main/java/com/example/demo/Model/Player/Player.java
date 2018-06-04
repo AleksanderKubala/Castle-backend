@@ -1,4 +1,4 @@
-package com.example.demo.Model.User;
+package com.example.demo.Model.Player;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +17,8 @@ import javax.validation.constraints.NotNull;
 public class Player {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
+    @SequenceGenerator(name = "public", sequenceName = "player_seq", initialValue = 1, allocationSize = 1)
     private Integer id;
 
     @NotNull

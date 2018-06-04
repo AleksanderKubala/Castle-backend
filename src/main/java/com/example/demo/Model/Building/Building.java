@@ -1,15 +1,13 @@
 package com.example.demo.Model.Building;
 
-
+import com.example.demo.Model.BuildingType.BuildingType;
+import com.example.demo.Model.CityTile.CityTile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -19,12 +17,15 @@ import javax.validation.constraints.NotNull;
 public class Building {
 
     @Id
-    @GeneratedValue
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
+    @SequenceGenerator(name = "public", sequenceName = "building_seq", initialValue = 1, allocationSize = 1)
+    private int id;
 
-    @NotNull
-    private String name;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "buildingTypeId")
+    private BuildingType type;
 
-    @NotNull
-    private String displayName;
+    @OneToOne(optional = false)
+    @JoinColumn(name = "cityTileId")
+    private CityTile tile;
 }

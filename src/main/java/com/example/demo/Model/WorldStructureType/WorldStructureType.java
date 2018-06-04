@@ -1,4 +1,4 @@
-package com.example.demo.Model.Unit;
+package com.example.demo.Model.WorldStructureType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,13 +13,16 @@ import javax.validation.constraints.NotNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Unit {
+public class WorldStructureType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
-    @SequenceGenerator(name = "public", sequenceName = "unit_seq", initialValue = 1, allocationSize = 1)
-    private Integer id;
+    @SequenceGenerator(name = "public", sequenceName = "structuretype_seq", initialValue = 1, allocationSize = 1)
+    private int id;
 
     @NotNull
     private String name;
+
+    @NotNull
+    private String displayName;
 }

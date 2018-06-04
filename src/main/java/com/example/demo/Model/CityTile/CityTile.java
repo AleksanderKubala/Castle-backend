@@ -1,6 +1,7 @@
 package com.example.demo.Model.CityTile;
 
 import com.example.demo.Model.Building.Building;
+import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.TerrainType.TerrainType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import com.example.demo.Model.City.City;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -18,8 +20,15 @@ import javax.persistence.*;
 public class CityTile {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
+    @SequenceGenerator(name = "public", sequenceName = "citytile_seq", initialValue = 1, allocationSize = 1)
     private int id;
+
+    @NotNull
+    private Integer rowNumber;
+
+    @NotNull
+    private Integer columnNumber;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "cityId")
@@ -29,7 +38,7 @@ public class CityTile {
     @JoinColumn(name = "terrainTypeId")
     private TerrainType terrain;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "buildingId")
     private Building building;
 }

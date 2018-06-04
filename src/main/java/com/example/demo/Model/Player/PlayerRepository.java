@@ -1,4 +1,4 @@
-package com.example.demo.Model.User;
+package com.example.demo.Model.Player;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface UserRepository extends JpaRepository<Player, Integer> {
+public interface PlayerRepository extends JpaRepository<Player, Integer> {
     List<Player> findAll();
 }

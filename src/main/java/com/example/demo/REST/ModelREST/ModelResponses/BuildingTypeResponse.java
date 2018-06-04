@@ -1,6 +1,6 @@
 package com.example.demo.REST.ModelREST.ModelResponses;
 
-import com.example.demo.Model.Building.Building;
+import com.example.demo.Model.BuildingType.BuildingType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,13 +10,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class BuildingResponse {
+public class BuildingTypeResponse {
 
     private String name;
     private String displayName;
 
-    public BuildingResponse(Building building) {
-        this.name = building.getName();
-        this.displayName = building.getDisplayName();
+    public BuildingTypeResponse(BuildingType buildingType) {
+        this.name = buildingType.getName();
+        this.displayName = buildingType.getDisplayName();
     }
 }

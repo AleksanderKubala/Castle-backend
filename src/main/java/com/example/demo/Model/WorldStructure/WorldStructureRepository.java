@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface WorldStructureRepository extends JpaRepository<WorldStructure, Integer>{
+public interface WorldStructureRepository extends JpaRepository<WorldStructure, Integer> {
 
     List<WorldStructure> findAll();
 }
