@@ -21,6 +21,9 @@ public class World {
     private int id;
 
     @NotNull
+    private String name;
+
+    @NotNull
     private Integer rows;
 
     @NotNull

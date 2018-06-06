@@ -32,6 +32,9 @@ public class City {
     @NotNull
     private Integer columns;
 
+    @NotNull
+    private Boolean capital;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "userId")
     private Player player;

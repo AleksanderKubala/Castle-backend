@@ -15,13 +15,23 @@ import java.util.List;
 @AllArgsConstructor
 public class CityResponse {
 
+    private Integer id;
+    private String name;
     private Integer rows;
     private Integer columns;
+    private Boolean capital;
     private List<CityTileResponse> tiles;
 
     public CityResponse(City city, List<CityTileResponse> tiles) {
+        this.id = city.getId();
+        this.name = city.getName();
         rows = city.getRows();
         columns = city.getColumns();
+        capital = city.getCapital();
         this.tiles = tiles;
+    }
+
+    public CityResponse(City city) {
+        this(city, null);
     }
 }

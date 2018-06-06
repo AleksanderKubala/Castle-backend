@@ -27,12 +27,8 @@ public class WorldService {
         this.worldTileRepository = worldTileRepository;
     }
 
-    public World retrieveWorld(Integer worldNumber) {
-        Optional<World> opWorld = worldRepository.findById(worldNumber);
-        if(opWorld.isPresent())
-            return opWorld.get();
-        else
-            return null;
+    public Optional<World> retrieveWorldById(Integer id) {
+        return worldRepository.findById(id);
     }
 
     public List<WorldTile> retrieveWorldTiles(World world) {

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BuildingTypeService {
@@ -22,5 +23,9 @@ public class BuildingTypeService {
 
     public List<BuildingType> retrieveAllBuildingTypes() {
         return buildingTypeRepository.findAll();
+    }
+
+    public Optional<BuildingType> retrieveBuildingTypeByName(String name) {
+        return buildingTypeRepository.findByName(name);
     }
 }

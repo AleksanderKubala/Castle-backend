@@ -22,9 +22,7 @@ import com.example.demo.Model.World.WorldRepository;
 import com.example.demo.Model.WorldTile.WorldTileRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class DbTest implements CommandLineRunner{
@@ -90,6 +88,7 @@ public class DbTest implements CommandLineRunner{
 
     private void initWorld() {
         World world = new World();
+        world.setName("World");
         world.setRows(14);
         world.setColumns(24);
         worldRepository.save(world);
@@ -100,13 +99,20 @@ public class DbTest implements CommandLineRunner{
         if(!opWorld.isPresent())
             return;
 
-        Player player = new Player();
-        player.setEmail("player@example.com");
-        player.setPassword("example");
-        player.setUsername("example");
-        player.setWorld(opWorld.get());
+        Player player1 = new Player();
+        player1.setEmail("player1@example.com");
+        player1.setPassword("example");
+        player1.setUsername("Player1");
+        player1.setWorld(opWorld.get());
 
-        playerRepository.save(player);
+        Player player2 = new Player();
+        player2.setEmail("player2@example.com");
+        player2.setPassword("example");
+        player2.setUsername("Player2");
+        player2.setWorld(opWorld.get());
+
+        playerRepository.save(player1);
+        playerRepository.save(player2);
     }
 
     private void initBuildingTypes() {
@@ -154,47 +160,58 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void initCity() {
-        Optional<WorldTile> opTile = worldTileRepository.findById(25);
-        Optional<Player> opPlayer = playerRepository.findById(1);
+        Optional<WorldTile> opTile1 = worldTileRepository.findById(26);
+        Optional<WorldTile> opTile2 = worldTileRepository.findById(30);
+        Optional<WorldTile> opTile3 = worldTileRepository.findById(143);
+        List<Player> players = playerRepository.findAll();
         Optional<WorldStructureType> opType = structureTypeRepository.findByName("city");
-        if((!opTile.isPresent()) || (!opPlayer.isPresent()) || (!opType.isPresent()))
+        if((!opTile1.isPresent()) || (!opTile2.isPresent()) || (!opTile3.isPresent()) || (!opType.isPresent()))
             return;
 
-        WorldTile tile = opTile.get();
-        Player player = opPlayer.get();
+        List<WorldTile> tiles = new ArrayList<>(Arrays.asList(opTile1.get(), opTile2.get(), opTile3.get()));
         WorldStructureType type = opType.get();
+        List<City> cities = new ArrayList<>();
 
-        City city = new City();
-        city.setName("ExampleCity");
-        city.setTile(tile);
-        city.setPlayer(player);
-        city.setType(type);
-        city.setColumns(16);
-        city.setRows(9);
+        for(int i = 0, l = 0; i < players.size(); i++) {
+            Boolean capital = true;
+            for(int j = 2 - i, k = 1; j > 0; j--, k++, l++) {
+                WorldTile tile = tiles.get(l);
+                City city = new City();
+                city.setName("ExampleCity" + k + players.get(i).getUsername());
+                city.setTile(tile);
+                tile.setCity(city);
+                city.setPlayer(players.get(i));
+                city.setType(type);
+                city.setColumns(16);
+                city.setRows(9);
+                city.setCapital(capital);
+                capital = false;
+                cities.add(city);
+            }
+        }
 
-        cityRepository.save(city);
-
-        tile.setCity(city);
-        worldTileRepository.save(tile);
+        cityRepository.saveAll(cities);
+        worldTileRepository.saveAll(tiles);
     }
 
     private void initCityTiles() {
-        Optional<City> opCity = cityRepository.findById(1);
+        List<City> cities = cityRepository.findAll();
         Optional<TerrainType> opTerrain = terrainRepository.findByName("grass");
-        if((!opCity.isPresent()) || (!opTerrain.isPresent()))
+        if((!opTerrain.isPresent()))
             return;
 
         TerrainType terrain = opTerrain.get();
-        City city = opCity.get();
         Collection<CityTile> tiles = new ArrayList<>();
-        for(int i = 0; i < city.getRows(); i++) {
-            for(int j = 0 ; j < city.getColumns(); j++) {
-                CityTile tile = new CityTile();
-                tile.setCity(city);
-                tile.setTerrain(terrain);
-                tile.setRowNumber(i);
-                tile.setColumnNumber(j);
-                tiles.add(tile);
+        for(City city: cities) {
+            for (int i = 0; i < city.getRows(); i++) {
+                for (int j = 0; j < city.getColumns(); j++) {
+                    CityTile tile = new CityTile();
+                    tile.setCity(city);
+                    tile.setTerrain(terrain);
+                    tile.setRowNumber(i);
+                    tile.setColumnNumber(j);
+                    tiles.add(tile);
+                }
             }
         }
 

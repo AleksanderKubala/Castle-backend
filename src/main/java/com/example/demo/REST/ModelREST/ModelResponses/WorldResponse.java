@@ -15,14 +15,22 @@ import java.util.List;
 @AllArgsConstructor
 public class WorldResponse {
 
+    private Integer id;
+    private String name;
     private Integer rows;
     private Integer columns;
     private List<WorldTileResponse> tiles;
 
     public WorldResponse(World world, List<WorldTileResponse> tiles) {
+        this.id = world.getId();
+        this.name = world.getName();
         rows = world.getRows();
         columns = world.getColumns();
         this.tiles = tiles;
+    }
+
+    public WorldResponse(World world) {
+        this(world, null);
     }
 
 }

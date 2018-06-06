@@ -9,11 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:4200/")
 @RestController
@@ -34,6 +36,16 @@ public class WorldStructureTypeController {
             response.add(new WorldStructureTypeResponse(type));
         }
 
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/structure/type/{name}")
+    public ResponseEntity<WorldStructureTypeResponse> getStructureTypes(@PathVariable String name) {
+        Optional<WorldStructureType> structure = structureTypeService.retrieveStructureTypeByName(name);
+        if(!structure.isPresent())
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        WorldStructureTypeResponse response = new WorldStructureTypeResponse(structure.get());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
