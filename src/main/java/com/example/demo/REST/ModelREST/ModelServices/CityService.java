@@ -39,4 +39,12 @@ public class CityService {
     public List<City> retrieveCitiesByPlayer(Player player) {
         return cityRepository.findAllByPlayer(player);
     }
+
+    public Optional<CityTile> retrieveTile(City city, Integer row, Integer column) {
+        return cityTileRepository.findByCityAndRowNumberAndColumnNumber(city, row, column);
+    }
+
+    public void updateTile(CityTile tile) {
+        cityTileRepository.save(tile);
+    }
 }

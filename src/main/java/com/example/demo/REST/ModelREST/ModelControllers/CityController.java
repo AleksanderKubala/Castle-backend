@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,6 +41,7 @@ public class CityController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         List<CityTile> tiles = cityService.retrieveCityTiles(city.get());
+        Collections.sort(tiles);
         List<CityTileResponse> responseTiles = new ArrayList<>();
         for(CityTile tile: tiles) {
             responseTiles.add(new CityTileResponse(tile));

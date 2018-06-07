@@ -20,6 +20,7 @@ public class CityResponse {
     private Integer rows;
     private Integer columns;
     private Boolean capital;
+    private String owner;
     private List<CityTileResponse> tiles;
 
     public CityResponse(City city, List<CityTileResponse> tiles) {
@@ -28,6 +29,7 @@ public class CityResponse {
         rows = city.getRows();
         columns = city.getColumns();
         capital = city.getCapital();
+        owner = city.getPlayer().getUsername();
         this.tiles = tiles;
     }
 

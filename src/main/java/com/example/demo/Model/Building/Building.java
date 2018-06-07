@@ -28,4 +28,9 @@ public class Building {
     @OneToOne(optional = false)
     @JoinColumn(name = "cityTileId")
     private CityTile tile;
+
+    public Building(BuildingType type, CityTile tile) {
+        this.type = type;
+        this.tile = tile;
+    }
 }

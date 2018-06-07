@@ -11,13 +11,14 @@ import com.example.demo.Model.City.City;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Comparator;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CityTile {
+public class CityTile implements Comparable<CityTile>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
@@ -41,4 +42,26 @@ public class CityTile {
     @OneToOne
     @JoinColumn(name = "buildingId")
     private Building building;
+
+    @Override
+    public int compareTo(CityTile o) {
+        return Comparator.comparingInt(CityTile::getRowNumber)
+                .thenComparingInt(CityTile::getColumnNumber)
+                .compare(this, o);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null) {
+            return false;
+        }
+        if(getClass() != o.getClass()) {
+            return false;
+        }
+
+        CityTile other = (CityTile)o;
+
+        return (rowNumber.equals(other.rowNumber)
+                && columnNumber.equals(other.columnNumber));
+    }
 }
