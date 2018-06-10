@@ -1,10 +1,14 @@
 package com.example.demo.REST.ModelREST.ModelResponses;
 
+import com.example.demo.Model.City.City;
+import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.WorldTile.WorldTile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,12 +24,17 @@ public class WorldTileResponse {
 
 
     public WorldTileResponse(WorldTile tile) {
+        this(tile, null, null);
+    }
+
+    public WorldTileResponse(WorldTile tile, City city, List<Storage> storage) {
         row = tile.getRowNumber();
         column = tile.getColumnNumber();
         terrain = tile.getTerrain().getName();
-        if(!(tile.getCity() == null)) {
+        if((city != null) && (storage != null)) {
             structureType = tile.getCity().getType().getName();
-            city = new CityResponse(tile.getCity());
+            this.city = new CityResponse(tile.getCity(), storage);
         }
+
     }
 }

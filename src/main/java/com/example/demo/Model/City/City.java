@@ -1,5 +1,6 @@
 package com.example.demo.Model.City;
 
+import com.example.demo.Model.Production.Production;
 import com.example.demo.Model.WorldStructureType.WorldStructureType;
 import com.example.demo.Model.WorldTile.WorldTile;
 import lombok.AllArgsConstructor;
@@ -46,4 +47,8 @@ public class City {
     @OneToOne(optional = false)
     @JoinColumn(name = "worldTileId")
     private WorldTile tile;
+
+    @OneToOne
+    @JoinColumn(name = "productionId")
+    private Production production;
 }

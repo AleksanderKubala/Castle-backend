@@ -5,6 +5,10 @@ import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.CityTile.CityTile;
 import com.example.demo.Model.Player.Player;
+import com.example.demo.Model.Resource.Resource;
+import com.example.demo.Model.Resource.ResourceRepository;
+import com.example.demo.Model.Storage.Storage;
+import com.example.demo.Model.Storage.StorageRepository;
 import com.example.demo.Model.TerrainType.TerrainType;
 import com.example.demo.Model.TerrainType.TerrainTypeRepository;
 import com.example.demo.Model.World.World;
@@ -37,6 +41,8 @@ public class DbTest implements CommandLineRunner{
     private WorldStructureTypeRepository structureTypeRepository;
     private BuildingRepository buildingRepository;
     private WorldStructureRepository structureRepository;
+    private ResourceRepository resourceRepository;
+    private StorageRepository storageRepository;
 
     @Autowired
     public DbTest(
@@ -49,7 +55,9 @@ public class DbTest implements CommandLineRunner{
             TerrainTypeRepository terrainRepository,
             WorldStructureTypeRepository structureTypeRepository,
             BuildingRepository buildingRepository,
-            WorldStructureRepository structureRepository
+            WorldStructureRepository structureRepository,
+            ResourceRepository resourceRepository,
+            StorageRepository storageRepository
     ) {
        this.buildingTypeRepository = buildingTypeRepository;
        this.cityRepository = cityRepository;
@@ -61,6 +69,8 @@ public class DbTest implements CommandLineRunner{
        this.structureTypeRepository = structureTypeRepository;
        this.buildingRepository = buildingRepository;
        this.structureRepository = structureRepository;
+       this.resourceRepository = resourceRepository;
+       this.storageRepository = storageRepository;
     }
 
     @Override
@@ -69,6 +79,7 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void init() {
+        initResources();
         initTerrain();
         initWorld();
         initPlayer();
@@ -77,6 +88,7 @@ public class DbTest implements CommandLineRunner{
         initWorldTiles();
         initCity();
         initCityTiles();
+        initCityStorage();
     }
 
 
@@ -113,6 +125,21 @@ public class DbTest implements CommandLineRunner{
 
         playerRepository.save(player1);
         playerRepository.save(player2);
+    }
+
+    private void initResources() {
+        String[] names = new String[] {"wood", "stone", "gold", "food", "capacity", "happiness"};
+        Boolean[] plunderableValues = new Boolean[] {true, true, true, true, false, false};
+        List<Resource> resources = new ArrayList<>();
+
+        for(int i = 0; i < names.length; i++) {
+            Resource resource = new Resource();
+            resource.setName(names[i]);
+            resource.setPlunderable(plunderableValues[i]);
+            resources.add(resource);
+        }
+
+        resourceRepository.saveAll(resources);
     }
 
     private void initBuildingTypes() {
@@ -192,6 +219,24 @@ public class DbTest implements CommandLineRunner{
 
         cityRepository.saveAll(cities);
         worldTileRepository.saveAll(tiles);
+    }
+
+    private void initCityStorage() {
+        List<City> cities = cityRepository.findAll();
+        List<Resource> resources = resourceRepository.findAll();
+        List<Storage> storages = new ArrayList<>();
+
+        for(City city: cities) {
+            for(Resource resource: resources) {
+                Storage storage = new Storage();
+                storage.setCity(city);
+                storage.setResource(resource);
+                storage.setQuantity(100);
+                storages.add(storage);
+            }
+        }
+
+        storageRepository.saveAll(storages);
     }
 
     private void initCityTiles() {

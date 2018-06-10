@@ -1,9 +1,14 @@
 package com.example.demo.REST.ModelREST.ModelControllers;
 
 import com.example.demo.Model.BuildingType.BuildingType;
-import com.example.demo.Model.BuildingType.BuildingTypeRepository;
+import com.example.demo.Model.Production.Production;
+import com.example.demo.Model.Requirement.Requirement;
 import com.example.demo.REST.ModelREST.ModelResponses.BuildingTypeResponse;
+import com.example.demo.REST.ModelREST.ModelResponses.ProductionResponse;
+import com.example.demo.REST.ModelREST.ModelResponses.RequirementResponse;
 import com.example.demo.REST.ModelREST.ModelServices.BuildingTypeService;
+import com.example.demo.REST.ModelREST.ModelServices.ProductionService;
+import com.example.demo.REST.ModelREST.ModelServices.RequirementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,10 +26,17 @@ import java.util.Optional;
 public class BuildingTypeController {
 
     private BuildingTypeService buildingTypeService;
+    private RequirementService requirementService;
+    private ProductionService productionService;
 
     @Autowired
-    public BuildingTypeController( BuildingTypeService buildingTypeService) {
+    public BuildingTypeController(
+            BuildingTypeService buildingTypeService,
+            RequirementService requirementService,
+            ProductionService productionService) {
         this.buildingTypeService = buildingTypeService;
+        this.requirementService = requirementService;
+        this.productionService = productionService;
     }
 
     @GetMapping("/buildingtypes")
@@ -33,11 +44,14 @@ public class BuildingTypeController {
         List<BuildingType> types = buildingTypeService.retrieveAllBuildingTypes();
         List<BuildingTypeResponse> response = new ArrayList<>();
         for(BuildingType type: types) {
-            response.add(new BuildingTypeResponse(type));
+            List<Production> productions = productionService.retrieveBuildingProduction(type);
+            List<Requirement> requirements = requirementService.retrieveBuildingRequirements(type);
+            response.add(new BuildingTypeResponse(type, productions, requirements));
         }
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /*
     @GetMapping("/building/type/{name}")
     public ResponseEntity<BuildingTypeResponse> getBuildingTypes(@PathVariable String name) {
         Optional<BuildingType> type = buildingTypeService.retrieveBuildingTypeByName(name);
@@ -48,4 +62,27 @@ public class BuildingTypeController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    */
+    /*
+    @GetMapping("/building/requirement")
+    public ResponseEntity<List<RequirementResponse>> getBuildingRequirements() {
+        List<Requirement> reqs = requirementService.retrieveBuildingRequirements();
+        List<RequirementResponse> response = new ArrayList<>();
+        for(Requirement req: reqs) {
+            response.add(new RequirementResponse(req));
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/building/production")
+    public ResponseEntity<List<ProductionResponse>> getBuildingProductions() {
+        List<Production> prods = productionService.retrieveBuildingProductions();
+        List<ProductionResponse> response = new ArrayList<>();
+        for(Production prod: prods) {
+            response.add(new ProductionResponse(prod));
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }*/
 }

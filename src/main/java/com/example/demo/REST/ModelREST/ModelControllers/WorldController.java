@@ -1,9 +1,11 @@
 package com.example.demo.REST.ModelREST.ModelControllers;
 
+import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.World.World;
 import com.example.demo.Model.WorldTile.WorldTile;
 import com.example.demo.REST.ModelREST.ModelResponses.WorldResponse;
 import com.example.demo.REST.ModelREST.ModelResponses.WorldTileResponse;
+import com.example.demo.REST.ModelREST.ModelServices.StorageService;
 import com.example.demo.REST.ModelREST.ModelServices.WorldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +22,14 @@ import java.util.*;
 public class WorldController {
 
     private WorldService worldService;
+    private StorageService storageService;
 
     @Autowired
-    public WorldController(WorldService worldService) {
+    public WorldController(
+            WorldService worldService,
+            StorageService storageService) {
         this.worldService = worldService;
+        this.storageService = storageService;
     }
 
     @GetMapping("/world/{id}")
@@ -37,7 +43,12 @@ public class WorldController {
         Collections.sort(tiles);
         List<WorldTileResponse> responseTiles = new ArrayList<>();
         for(WorldTile tile: tiles) {
-            responseTiles.add(new WorldTileResponse(tile));
+            if(tile.getCity() != null) {
+                List<Storage> storage = storageService.retrieveCityStorage(tile.getCity());
+                responseTiles.add(new WorldTileResponse(tile, tile.getCity(), storage));
+            } else {
+                responseTiles.add(new WorldTileResponse(tile));
+            }
         }
         WorldResponse response = new WorldResponse(world.get(), responseTiles);
         return new ResponseEntity<>(response, HttpStatus.OK);
