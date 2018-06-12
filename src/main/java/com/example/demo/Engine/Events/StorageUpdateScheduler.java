@@ -12,7 +12,7 @@ public class StorageUpdateScheduler extends Observable implements Runnable {
     private boolean done;
 
     public StorageUpdateScheduler() {
-        done = false;
+        done = true;
         new Thread(this).start();
     }
 
@@ -22,8 +22,8 @@ public class StorageUpdateScheduler extends Observable implements Runnable {
         //int difference = 60 - systemTime.getMinute();
         //LocalDateTime eventTime = systemTime.plusMinutes(difference);
         while(!done) {
-            LocalDateTime eventTime = LocalDateTime.now().plusSeconds(5);
-            int difference = 5;
+            LocalDateTime eventTime = LocalDateTime.now().plusSeconds(15);
+            int difference = 15;
             setChanged();
             notifyObservers(new StorageUpdateEvent(eventTime));
             clearChanged();

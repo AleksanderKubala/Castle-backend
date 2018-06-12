@@ -5,6 +5,7 @@ import com.example.demo.Engine.Events.StorageUpdateEvent;
 import com.example.demo.Engine.Events.StorageUpdateScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,17 +13,21 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-@Component
+@Service
 public class GameEventCalendar extends Observable implements Runnable, Observer {
 
     private List<GameEvent> eventCalendar;
     private Boolean done;
     private int defaultSleepTime;
     private Thread calendarThread;
+    private GameEventManager eventManager;
 
     @Autowired
-    public GameEventCalendar(StorageUpdateScheduler storageScheduler) {
+    public GameEventCalendar(
+            GameEventManager eventManager,
+            StorageUpdateScheduler storageScheduler) {
         this.eventCalendar = new ArrayList<>();
+        this.eventManager = eventManager;
         done = false;
         defaultSleepTime = 70;
         storageScheduler.addObserver(this);
@@ -48,7 +53,7 @@ public class GameEventCalendar extends Observable implements Runnable, Observer 
             if(eventCalendar.size() > 0) {
                 GameEvent currentEvent = eventCalendar.get(0);
                 eventCalendar.remove(0);
-                notifyObservers(currentEvent);
+                eventManager.passEvents(currentEvent);
                 clearChanged();
             }
         }
@@ -74,10 +79,6 @@ public class GameEventCalendar extends Observable implements Runnable, Observer 
         setChanged();
         if(index == 0)
             calendarThread.interrupt();
-
-    }
-
-    private void onInterrupt() {
 
     }
 

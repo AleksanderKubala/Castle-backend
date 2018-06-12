@@ -12,4 +12,8 @@ public interface BuildingTypeRepository extends JpaRepository<BuildingType, Inte
     List<BuildingType> findAll();
 
     Optional<BuildingType> findByName(String name);
+
+    List<BuildingType> findAllByOnlyOne(Boolean onlyOne);
+
+    List<BuildingType> findAllByMainBuilding(Boolean isMain);
 }

@@ -22,4 +22,7 @@ public class Unit {
 
     @NotNull
     private String name;
+
+    @NotNull
+    private String displayName;
 }

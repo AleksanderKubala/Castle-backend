@@ -22,4 +22,8 @@ public class StorageService {
     public List<Storage> retrieveCityStorage(City city) {
         return storageRepository.findAllByCity(city);
     }
+
+    public void updateStorages(List<Storage> storage) {
+        storageRepository.saveAll(storage);
+    }
 }

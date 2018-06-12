@@ -2,6 +2,7 @@ package com.example.demo.REST.ModelREST.ModelControllers;
 
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.CityTile.CityTile;
+import com.example.demo.Model.Garrison.Garrison;
 import com.example.demo.Model.Player.Player;
 import com.example.demo.Model.Production.Production;
 import com.example.demo.Model.Storage.Storage;
@@ -9,10 +10,7 @@ import com.example.demo.REST.ModelREST.ModelResponses.CityResponse;
 import com.example.demo.REST.ModelREST.ModelResponses.CityTileResponse;
 import com.example.demo.REST.ModelREST.ModelResponses.ProductionResponse;
 import com.example.demo.REST.ModelREST.ModelResponses.StorageResponse;
-import com.example.demo.REST.ModelREST.ModelServices.CityService;
-import com.example.demo.REST.ModelREST.ModelServices.PlayerService;
-import com.example.demo.REST.ModelREST.ModelServices.ProductionService;
-import com.example.demo.REST.ModelREST.ModelServices.StorageService;
+import com.example.demo.REST.ModelREST.ModelServices.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,17 +32,20 @@ public class CityController {
     private PlayerService playerService;
     private ProductionService productionService;
     private StorageService storageService;
+    private GarrisonService garrisonService;
 
     @Autowired
     public CityController(
             CityService cityService,
             PlayerService playerService,
             ProductionService productionService,
-            StorageService storageService) {
+            StorageService storageService,
+            GarrisonService garrisonService) {
         this.cityService = cityService;
         this.playerService = playerService;
         this.productionService = productionService;
         this.storageService = storageService;
+        this.garrisonService = garrisonService;
     }
 
     @GetMapping("/city/{id}")
@@ -63,8 +64,9 @@ public class CityController {
 
         List<Storage> storage = storageService.retrieveCityStorage(city.get());
         List<Production> productions = productionService.retrieveCityProduction(city.get());
+        List<Garrison> garrison = garrisonService.retrieveCityGarrison(city.get());
 
-        CityResponse response = new CityResponse(city.get(), storage, productions, responseTiles);
+        CityResponse response = new CityResponse(city.get(), storage, productions, garrison, responseTiles);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -79,27 +81,12 @@ public class CityController {
         List<CityResponse> response = new ArrayList<>();
         for(City city: cities) {
             List<Storage> storage = storageService.retrieveCityStorage(city);
-            response.add(new CityResponse(city, storage));
+            List<Production> production = productionService.retrieveCityProduction(city);
+            List<Garrison> garrison = garrisonService.retrieveCityGarrison(city);
+            response.add(CityResponse.createResponse(city, storage, production, garrison));
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    /*
-
-    @GetMapping("/city/{id}/production")
-    public ResponseEntity<List<ProductionResponse>> getCityProduction(@PathVariable Integer id) {
-        Optional<City> city = cityService.retrieveCityById(id);
-        if(!city.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        List<Production> prods = productionService.retrieveCityProduction(city.get());
-        List<ProductionResponse> response = new ArrayList<>();
-        for(Production prod: prods) {
-            response.add(new ProductionResponse(prod));
-        }
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }*/
 }

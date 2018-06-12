@@ -25,4 +25,18 @@ public class Resource {
 
     @NotNull
     private Boolean plunderable;
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null)
+            return false;
+
+        if(o.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Resource res = (Resource)o;
+
+        return this.getName().equals(res.getName());
+    }
 }

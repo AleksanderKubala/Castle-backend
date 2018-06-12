@@ -28,4 +28,8 @@ public class ProductionService {
     public List<Production> retrieveCityProduction(City city) {
         return productionRepository.findAllByCity(city);
     }
+
+    public void updateProduction(List<Production> productions) {
+        productionRepository.saveAll(productions);
+    }
 }

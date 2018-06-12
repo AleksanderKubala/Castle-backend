@@ -1,10 +1,12 @@
 package com.example.demo.REST.ModelREST.ModelControllers;
 
+import com.example.demo.Model.Garrison.Garrison;
 import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.World.World;
 import com.example.demo.Model.WorldTile.WorldTile;
 import com.example.demo.REST.ModelREST.ModelResponses.WorldResponse;
 import com.example.demo.REST.ModelREST.ModelResponses.WorldTileResponse;
+import com.example.demo.REST.ModelREST.ModelServices.GarrisonService;
 import com.example.demo.REST.ModelREST.ModelServices.StorageService;
 import com.example.demo.REST.ModelREST.ModelServices.WorldService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,16 @@ public class WorldController {
 
     private WorldService worldService;
     private StorageService storageService;
+    private GarrisonService garrisonService;
 
     @Autowired
     public WorldController(
             WorldService worldService,
-            StorageService storageService) {
+            StorageService storageService,
+            GarrisonService garrisonService) {
         this.worldService = worldService;
         this.storageService = storageService;
+        this.garrisonService = garrisonService;
     }
 
     @GetMapping("/world/{id}")
@@ -45,7 +50,8 @@ public class WorldController {
         for(WorldTile tile: tiles) {
             if(tile.getCity() != null) {
                 List<Storage> storage = storageService.retrieveCityStorage(tile.getCity());
-                responseTiles.add(new WorldTileResponse(tile, tile.getCity(), storage));
+                List<Garrison> garrison = garrisonService.retrieveCityGarrison(tile.getCity());
+                responseTiles.add(new WorldTileResponse(tile, tile.getCity(), storage, garrison));
             } else {
                 responseTiles.add(new WorldTileResponse(tile));
             }

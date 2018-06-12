@@ -19,6 +19,9 @@ public class BuildingTypeResponse {
 
     private String name;
     private String displayName;
+    private Boolean onlyOne;
+    private Boolean destructible;
+    private Boolean mainBuilding;
     private List<ProductionResponse> productions;
     private List<RequirementResponse> requirements;
 
@@ -30,6 +33,9 @@ public class BuildingTypeResponse {
         this.requirements = new ArrayList<>();
         this.name = buildingType.getName();
         this.displayName = buildingType.getDisplayName();
+        this.onlyOne = buildingType.isOnlyOne();
+        this.destructible = buildingType.isDestructible();
+        this.mainBuilding = buildingType.isMainBuilding();
         for(Production production: productions) {
             this.productions.add(new ProductionResponse(production));
         }

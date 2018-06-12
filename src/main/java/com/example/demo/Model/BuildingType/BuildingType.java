@@ -26,4 +26,13 @@ public class BuildingType {
 
     @NotNull
     private String displayName;
+
+    @NotNull
+    private boolean onlyOne;
+
+    @NotNull
+    private boolean destructible;
+
+    @NotNull
+    private boolean mainBuilding;
 }

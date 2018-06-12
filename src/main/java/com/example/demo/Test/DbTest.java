@@ -2,19 +2,30 @@ package com.example.demo.Test;
 
 import com.example.demo.Model.Building.BuildingRepository;
 import com.example.demo.Model.BuildingType.BuildingType;
+import com.example.demo.Model.BuildingType.BuildingTypes;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.CityTile.CityTile;
 import com.example.demo.Model.Player.Player;
+import com.example.demo.Model.Production.Production;
+import com.example.demo.Model.Production.ProductionRepository;
+import com.example.demo.Model.Requirement.Requirement;
+import com.example.demo.Model.Requirement.RequirementRepository;
 import com.example.demo.Model.Resource.Resource;
 import com.example.demo.Model.Resource.ResourceRepository;
+import com.example.demo.Model.Resource.ResourceTypes;
 import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.Storage.StorageRepository;
 import com.example.demo.Model.TerrainType.TerrainType;
 import com.example.demo.Model.TerrainType.TerrainTypeRepository;
+import com.example.demo.Model.TerrainType.TerrainTypes;
+import com.example.demo.Model.Unit.Unit;
+import com.example.demo.Model.Unit.UnitRepository;
+import com.example.demo.Model.Unit.UnitTypes;
 import com.example.demo.Model.World.World;
 import com.example.demo.Model.WorldStructure.WorldStructureRepository;
 import com.example.demo.Model.WorldStructureType.WorldStructureType;
 import com.example.demo.Model.WorldStructureType.WorldStructureTypeRepository;
+import com.example.demo.Model.WorldStructureType.WorldStructureTypes;
 import com.example.demo.Model.WorldTile.WorldTile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -43,6 +54,9 @@ public class DbTest implements CommandLineRunner{
     private WorldStructureRepository structureRepository;
     private ResourceRepository resourceRepository;
     private StorageRepository storageRepository;
+    private ProductionRepository productionRepository;
+    private RequirementRepository requirementRepository;
+    private UnitRepository unitRepository;
 
     @Autowired
     public DbTest(
@@ -57,7 +71,10 @@ public class DbTest implements CommandLineRunner{
             BuildingRepository buildingRepository,
             WorldStructureRepository structureRepository,
             ResourceRepository resourceRepository,
-            StorageRepository storageRepository
+            StorageRepository storageRepository,
+            ProductionRepository productionRepository,
+            RequirementRepository requirementRepository,
+            UnitRepository unitRepository
     ) {
        this.buildingTypeRepository = buildingTypeRepository;
        this.cityRepository = cityRepository;
@@ -71,6 +88,10 @@ public class DbTest implements CommandLineRunner{
        this.structureRepository = structureRepository;
        this.resourceRepository = resourceRepository;
        this.storageRepository = storageRepository;
+       this.productionRepository = productionRepository;
+       this.resourceRepository = resourceRepository;
+       this.requirementRepository = requirementRepository;
+       this.unitRepository = unitRepository;
     }
 
     @Override
@@ -79,6 +100,7 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void init() {
+        initUnits();
         initResources();
         initTerrain();
         initWorld();
@@ -89,12 +111,37 @@ public class DbTest implements CommandLineRunner{
         initCity();
         initCityTiles();
         initCityStorage();
+        initCityProduction();
+        initBuildingProductions();
+        initBuildingRequirements();
     }
 
 
+    private void initUnits() {
+        String[] names = new String[] {
+                UnitTypes.ARCHER.name,
+                UnitTypes.PIKEMAN.name,
+                UnitTypes.CAVALRY.name
+        };
+        String[] displayNames = new String[] {
+                UnitTypes.ARCHER.displayName,
+                UnitTypes.PIKEMAN.displayName,
+                UnitTypes.CAVALRY.displayName
+        };
+
+        List<Unit> units = new ArrayList<>();
+        for(int i = 0 ; i < names.length; i++) {
+            Unit unit = new Unit();
+            unit.setName(names[i]);
+            unit.setDisplayName(displayNames[i]);
+            units.add(unit);
+        }
+        unitRepository.saveAll(units);
+    }
+
     private void initTerrain() {
         TerrainType terrain = new TerrainType();
-        terrain.setName("grass");
+        terrain.setName(TerrainTypes.GRASS.name);
         terrainRepository.save(terrain);
     }
 
@@ -128,7 +175,14 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void initResources() {
-        String[] names = new String[] {"wood", "stone", "gold", "food", "capacity", "happiness"};
+        String[] names = new String[] {
+                ResourceTypes.WOOD.name,
+                ResourceTypes.STONE.name,
+                ResourceTypes.GOLD.name,
+                ResourceTypes.FOOD.name,
+                ResourceTypes.CAPACITY.name,
+                ResourceTypes.HAPPINESS.name
+        };
         Boolean[] plunderableValues = new Boolean[] {true, true, true, true, false, false};
         List<Resource> resources = new ArrayList<>();
 
@@ -143,19 +197,80 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void initBuildingTypes() {
-        String[] names = new String[] {"castle", "house"};
-        String[] display = new String[] {"Castle", "House"};
+        String[] names = new String[] {
+                BuildingTypes.CASTLE.name,
+                BuildingTypes.HOUSE.name,
+                BuildingTypes.ARCHERY.name,
+                BuildingTypes.BARRACKS.name,
+                BuildingTypes.STABLES.name
+        };
+        String[] display = new String[] {
+                BuildingTypes.CASTLE.displayName,
+                BuildingTypes.HOUSE.displayName,
+                BuildingTypes.ARCHERY.displayName,
+                BuildingTypes.BARRACKS.displayName,
+                BuildingTypes.STABLES.displayName};
         for (int i = 0; i < names.length; i++) {
             BuildingType buildingType = new BuildingType();
             buildingType.setName(names[i]);
             buildingType.setDisplayName(display[i]);
+            if(names[i].equals(BuildingTypes.CASTLE.name)) {
+                buildingType.setDestructible(false);
+                buildingType.setMainBuilding(true);
+            } else {
+                buildingType.setDestructible(true);
+                buildingType.setMainBuilding(false);
+            }
+            if(!names[i].equals(BuildingTypes.HOUSE.name)) {
+                buildingType.setOnlyOne(true);
+            } else {
+                buildingType.setOnlyOne(false);
+            }
             buildingTypeRepository.save(buildingType);
         }
     }
 
+    private void initBuildingProductions() {
+        List<BuildingType> types = buildingTypeRepository.findAll();
+        List<Production> productions = new ArrayList<>();
+        for(BuildingType type: types) {
+            Production production = new Production();
+            production.setBuildingType(type);
+            Optional<Resource> gold = resourceRepository.findByName(ResourceTypes.GOLD.name);
+            if(gold.isPresent()) {
+                production.setResource(gold.get());
+                if (!type.isDestructible()) {
+                    production.setQuantity(6);
+                } else {
+                    production.setQuantity(-1);
+                }
+            }
+            productions.add(production);
+        }
+        productionRepository.saveAll(productions);
+    }
+
+    private void initBuildingRequirements() {
+        List<BuildingType> types = buildingTypeRepository.findAll();
+        List<Requirement> requirements = new ArrayList<>();
+        for(BuildingType type: types) {
+            if(!type.getName().equals(BuildingTypes.CASTLE.name)) {
+                Requirement req = new Requirement();
+                req.setBuildingType(type);
+                Optional<Resource> wood = resourceRepository.findByName(ResourceTypes.WOOD.name);
+                if(wood.isPresent()) {
+                    req.setResource(wood.get());
+                    req.setQuantity(20);
+                }
+                requirements.add(req);
+            }
+        }
+        requirementRepository.saveAll(requirements);
+    }
+
     private void initStructureTypes() {
-        String[] names = new String[] {"city"};
-        String[] display = new String[] {"City"};
+        String[] names = new String[] {WorldStructureTypes.CITY.name};
+        String[] display = new String[] {WorldStructureTypes.CITY.displayName};
         for (int i = 0; i < names.length; i++) {
             WorldStructureType structureType = new WorldStructureType();
             structureType.setName(names[i]);
@@ -166,7 +281,7 @@ public class DbTest implements CommandLineRunner{
 
     private void initWorldTiles() {
         Optional<World> opWorld = worldRepository.findById(1);
-        Optional<TerrainType> opTerrain = terrainRepository.findByName("grass");
+        Optional<TerrainType> opTerrain = terrainRepository.findByName(TerrainTypes.GRASS.name);
         if((!opWorld.isPresent()) || (!opTerrain.isPresent()))
             return;
 
@@ -191,7 +306,7 @@ public class DbTest implements CommandLineRunner{
         Optional<WorldTile> opTile2 = worldTileRepository.findById(30);
         Optional<WorldTile> opTile3 = worldTileRepository.findById(143);
         List<Player> players = playerRepository.findAll();
-        Optional<WorldStructureType> opType = structureTypeRepository.findByName("city");
+        Optional<WorldStructureType> opType = structureTypeRepository.findByName(WorldStructureTypes.CITY.name);
         if((!opTile1.isPresent()) || (!opTile2.isPresent()) || (!opTile3.isPresent()) || (!opType.isPresent()))
             return;
 
@@ -212,6 +327,10 @@ public class DbTest implements CommandLineRunner{
                 city.setColumns(16);
                 city.setRows(9);
                 city.setCapital(capital);
+                city.setHasArchery(false);
+                city.setHasBarracks(false);
+                city.setHasMainBuilding(false);
+                city.setHasStables(false);
                 capital = false;
                 cities.add(city);
             }
@@ -239,9 +358,27 @@ public class DbTest implements CommandLineRunner{
         storageRepository.saveAll(storages);
     }
 
+    private void initCityProduction() {
+        List<City> cities = cityRepository.findAll();
+        List<Resource> resources = resourceRepository.findAll();
+        List<Production> productions = new ArrayList<>();
+
+        for(City city: cities) {
+            for(Resource resource: resources) {
+                Production production = new Production();
+                production.setCity(city);
+                production.setResource(resource);
+                production.setQuantity(0);
+                productions.add(production);
+            }
+        }
+
+        productionRepository.saveAll(productions);
+    }
+
     private void initCityTiles() {
         List<City> cities = cityRepository.findAll();
-        Optional<TerrainType> opTerrain = terrainRepository.findByName("grass");
+        Optional<TerrainType> opTerrain = terrainRepository.findByName(TerrainTypes.GRASS.name);
         if((!opTerrain.isPresent()))
             return;
 

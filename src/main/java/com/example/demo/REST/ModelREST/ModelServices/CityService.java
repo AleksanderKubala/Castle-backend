@@ -44,6 +44,10 @@ public class CityService {
         return cityTileRepository.findByCityAndRowNumberAndColumnNumber(city, row, column);
     }
 
+    public List<City> retrieveAllCities() {
+        return cityRepository.findAll();
+    }
+
     public void updateTile(CityTile tile) {
         cityTileRepository.save(tile);
     }

@@ -1,6 +1,7 @@
 package com.example.demo.Model.City;
 
 import com.example.demo.Model.Production.Production;
+import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.WorldStructureType.WorldStructureType;
 import com.example.demo.Model.WorldTile.WorldTile;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import com.example.demo.Model.Player.Player;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,6 +38,18 @@ public class City {
     @NotNull
     private Boolean capital;
 
+    @NotNull
+    private boolean hasMainBuilding;
+
+    @NotNull
+    private boolean hasArchery;
+
+    @NotNull
+    private boolean hasBarracks;
+
+    @NotNull
+    private boolean hasStables;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "userId")
     private Player player;
@@ -48,7 +62,4 @@ public class City {
     @JoinColumn(name = "worldTileId")
     private WorldTile tile;
 
-    @OneToOne
-    @JoinColumn(name = "productionId")
-    private Production production;
 }
