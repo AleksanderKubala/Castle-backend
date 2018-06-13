@@ -269,6 +269,7 @@ public class DbTest implements CommandLineRunner{
                 if(wood.isPresent()) {
                     req.setResource(wood.get());
                     req.setQuantity(20);
+                    req.setRecoveryCoef(0.5);
                 }
                 requirements.add(req);
             }
@@ -409,18 +410,18 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void initGarrison() {
-        Optional<City> city = cityRepository.findById(1);
-        if(!city.isPresent())
-            return;
+        List<City> cities = cityRepository.findAll();
 
         List<Garrison> garrison = new ArrayList<>();
         List<Unit> units = unitRepository.findAll();
-        for(Unit unit: units) {
-            Garrison troop = new Garrison();
-            troop.setCity(city.get());
-            troop.setUnit(unit);
-            troop.setQuantity(10);
-            garrison.add(troop);
+        for(City city: cities) {
+            for (Unit unit : units) {
+                Garrison troop = new Garrison();
+                troop.setCity(city);
+                troop.setUnit(unit);
+                troop.setQuantity(0);
+                garrison.add(troop);
+            }
         }
 
         garrisonRepository.saveAll(garrison);
@@ -440,16 +441,19 @@ public class DbTest implements CommandLineRunner{
                 req.setUnit(unit);
                 req.setResource(gold.get());
                 req.setQuantity(10);
+                req.setRecoveryCoef(0.0);
                 reqs.add(req);
                 req = new Requirement();
                 req.setUnit(unit);
                 req.setResource(capacity.get());
                 req.setQuantity(1);
+                req.setRecoveryCoef(1.0);
                 reqs.add(req);
                 req = new Requirement();
                 req.setUnit(unit);
                 req.setResource(wood.get());
                 req.setQuantity(5);
+                req.setRecoveryCoef(0.0);
                 reqs.add(req);
             }
             if(unit.getName().equals(UnitTypes.PIKEMAN.name)) {
@@ -457,10 +461,12 @@ public class DbTest implements CommandLineRunner{
                 req.setUnit(unit);
                 req.setResource(gold.get());
                 req.setQuantity(5);
+                req.setRecoveryCoef(0.0);
                 reqs.add(req);
                 req = new Requirement();
                 req.setUnit(unit);
                 req.setResource(capacity.get());
+                req.setRecoveryCoef(1.0);
                 req.setQuantity(1);
                 reqs.add(req);
             }
@@ -469,10 +475,12 @@ public class DbTest implements CommandLineRunner{
                 req.setUnit(unit);
                 req.setResource(gold.get());
                 req.setQuantity(20);
+                req.setRecoveryCoef(0.0);
                 reqs.add(req);
                 req = new Requirement();
                 req.setUnit(unit);
                 req.setResource(capacity.get());
+                req.setRecoveryCoef(1.0);
                 req.setQuantity(3);
                 reqs.add(req);
             }

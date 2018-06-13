@@ -1,5 +1,6 @@
 package com.example.demo.Model.Garrison;
 
+import com.example.demo.Model.Abstract.Quantitative;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Unit.Unit;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Garrison {
+public class Garrison implements Quantitative{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
@@ -32,4 +33,10 @@ public class Garrison {
 
     @NotNull
     private Integer quantity;
+
+    public Garrison(City city, Unit unit) {
+        this.city = city;
+        this.unit = unit;
+        this.quantity = 0;
+    }
 }

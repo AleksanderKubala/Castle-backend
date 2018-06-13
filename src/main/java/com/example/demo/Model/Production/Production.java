@@ -1,5 +1,7 @@
 package com.example.demo.Model.Production;
 
+import com.example.demo.Model.Abstract.Quantitative;
+import com.example.demo.Model.Abstract.Requisition;
 import com.example.demo.Model.Building.Building;
 import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.City.City;
@@ -18,7 +20,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Production {
+public class Production implements Requisition {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
@@ -44,4 +46,8 @@ public class Production {
     @NotNull
     private Integer quantity;
 
+    @Override
+    public Double getRecoveryCoef() {
+        return 0.0;
+    }
 }

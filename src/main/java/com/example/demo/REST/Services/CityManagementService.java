@@ -1,106 +1,98 @@
 package com.example.demo.REST.Services;
 
+import com.example.demo.Model.Abstract.Quantitative;
+import com.example.demo.Model.Abstract.Requisition;
 import com.example.demo.Model.Building.Building;
 import com.example.demo.Model.BuildingType.BuildingType;
-import com.example.demo.Model.BuildingType.BuildingTypes;
 import com.example.demo.Model.City.City;
-import com.example.demo.Model.CityTile.CityTile;
+import com.example.demo.Model.Garrison.Garrison;
 import com.example.demo.Model.Production.Production;
 import com.example.demo.Model.Requirement.Requirement;
 import com.example.demo.Model.Storage.Storage;
+import com.example.demo.Model.Unit.Unit;
 import com.example.demo.REST.ModelREST.ModelServices.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
-@Service
-public class CityManagementService {
+public abstract class CityManagementService {
 
-    private CityService cityService;
-    private BuildingTypeService buildingTypeService;
-    private BuildingService buildingService;
-    private StorageService storageService;
-    private RequirementService requirementService;
-    private ProductionService productionService;
+    protected CityService cityService;
+    protected StorageService storageService;
+    protected RequirementService requirementService;
+    protected ProductionService productionService;
+    protected GarrisonService garrisonService;
 
-    @Autowired
-    public CityManagementService(
+    protected CityManagementService(
             CityService cityService,
-            BuildingService buildingService,
-            BuildingTypeService buildingTypeService,
             StorageService storageService,
             RequirementService requirementService,
-            ProductionService productionService
+            ProductionService productionService,
+            GarrisonService garrisonService
     ) {
-        this.buildingService = buildingService;
-        this.buildingTypeService = buildingTypeService;
         this.cityService = cityService;
         this.storageService = storageService;
         this.requirementService = requirementService;
         this.productionService = productionService;
+        this.garrisonService = garrisonService;
     }
 
-    public CityTile constructBuilding(Integer cityId, Integer row, Integer column, String buildingName) {
-        CityTile tile = findTile(cityId, row, column);
-        if(tile == null)
-            return null;
+    public List<Production> retrieveCityProduction(City city) {
+        return this.productionService.retrieveCityProduction(city);
+    }
 
-        Optional<BuildingType> type = buildingTypeService.retrieveBuildingTypeByName(buildingName);
-        if(!type.isPresent()) {
-            return null;
+    public List<Storage> retrieveCityStorage(City city) {
+        return this.storageService.retrieveCityStorage(city);
+    }
+
+    public List<Garrison> retrieveCityGarrison(City city) {
+        return this.garrisonService.retrieveCityGarrison(city);
+    }
+
+    protected void recalculateRequisition(
+            List<? extends Requisition> source,
+            List<? extends Requisition> leech,
+            Integer quantity,
+            Boolean recover
+    ) {
+        for (Requisition leechReq : leech) {
+            for (Requisition sourceReq : source) {
+                if (sourceReq.getResource().equals(leechReq.getResource())) {
+                    if (recover) {
+                        sourceReq.setQuantity(sourceReq.getQuantity() - (leechReq.getQuantity() * quantity));
+                    } else {
+                        sourceReq.setQuantity(sourceReq.getQuantity() + (leechReq.getQuantity() * quantity));
+                    }
+                }
+            }
         }
-
-        depleteResources(tile.getCity(), type.get());
-
-        Building building = new Building(type.get(), tile);
-        tile.setBuilding(building);
-        buildingService.store(building);
-        cityService.updateTile(tile);
-
-        determineBuildingType(tile.getCity(), type.get(), building);
-        recalculateCityProduction(tile.getCity(), type.get(), building);
-
-        return tile;
     }
 
-    public CityTile destroyBuilding(Integer cityId, Integer row, Integer column) {
-        CityTile tile = findTile(cityId, row, column);
-        if(tile == null)
-            return null;
-
-        Building building = tile.getBuilding();
-        if(!building.getType().isDestructible())
-            return null;
-        tile.setBuilding(null);
-        buildingService.remove(building);
-        cityService.updateTile(tile);
-
-        determineBuildingType(tile.getCity(), building.getType(), null);
-        recalculateCityProduction(tile.getCity(), building.getType(), null);
-
-        return tile;
-    }
-
-    private CityTile findTile(Integer cityId, Integer row, Integer column) {
-        Optional<City> city = cityService.retrieveCityById(cityId);
-        if(!city.isPresent()) {
-            return null;
+    protected void depleteRequisition (
+            List<? extends Requisition> source,
+            List<? extends Requisition> leech,
+            Integer quantity,
+            Boolean recover
+    ) {
+        for(Requisition leechReq: leech) {
+            for(Requisition sourceReq: source) {
+                if(leechReq.getResource().equals(sourceReq.getResource())) {
+                    if(recover) {
+                        sourceReq.setQuantity(sourceReq.getQuantity() + ((int)(leechReq.getQuantity() * quantity * leechReq.getRecoveryCoef())));
+                    } else {
+                        sourceReq.setQuantity(sourceReq.getQuantity() - (leechReq.getQuantity() * quantity));
+                    }
+                }
+            }
         }
-
-        Optional<CityTile> tile = cityService.retrieveTile(city.get(), row, column);
-        if(!tile.isPresent()) {
-            return null;
-        }
-
-        return tile.get();
     }
 
-    private void recalculateCityProduction(City city, BuildingType type, Building building) {
+
+    protected void recalculateCityProduction(City city, BuildingType type, Integer quantity, Boolean recover) {
         List<Production> cityProductions = productionService.retrieveCityProduction(city);
         List<Production> buildingProductions = productionService.retrieveBuildingProduction(type);
+        recalculateRequisition(cityProductions, buildingProductions, quantity, recover);
+        /*
 
         for(Production buildingProduction: buildingProductions) {
             for(Production cityProduction : cityProductions) {
@@ -112,17 +104,25 @@ public class CityManagementService {
                     }
                 }
             }
-        }
+        }*/
 
         productionService.updateProduction(cityProductions);
-
     }
 
-    private void depleteResources(City city, BuildingType type) {
+    protected void recalculateCityProduction(City city, Unit unit, Integer quantity, Boolean recover) {
+        List<Production> cityProductions = productionService.retrieveCityProduction(city);
+        List<Production> unitProductions = productionService.retrieveUnitProduction(unit);
+        recalculateRequisition(cityProductions, unitProductions, quantity, recover);
+        productionService.updateProduction(cityProductions);
+    }
+
+    protected void depleteResources(City city, BuildingType type, Integer quantity, Boolean recover) {
         List<Requirement> reqs = requirementService.retrieveBuildingRequirements(type);
         List<Storage> storages = storageService.retrieveCityStorage(city);
-        List<Storage> neededStorages = new ArrayList<>();
+        depleteRequisition(storages, reqs, quantity, recover);
+        // List<Storage> neededStorages = new ArrayList<>();
 
+        /*
         for(Requirement req: reqs) {
             for(Storage storage: storages) {
                 if(req.getResource().equals(storage.getResource())) {
@@ -131,23 +131,14 @@ public class CityManagementService {
                 }
             }
         }
-
-        storageService.updateStorages(neededStorages);
+        */
+        storageService.updateStorages(storages);
     }
 
-    private void determineBuildingType(City city, BuildingType type, Building building) {
-        boolean has = true;
-        if(building == null)
-            has = false;
-
-        if(type.getName().equals(BuildingTypes.CASTLE.name)) {
-            city.setHasMainBuilding(has);
-        } else if(type.getName().equals(BuildingTypes.ARCHERY.name)) {
-            city.setHasArchery(has);
-        } else if (type.getName().equals(BuildingTypes.BARRACKS.name)) {
-            city.setHasBarracks(has);
-        } else if (type.getName().equals(BuildingTypes.STABLES.name)) {
-            city.setHasStables(has);
-        }
+    protected void depleteResources(City city, Unit unit, Integer quantity, Boolean recover) {
+        List<Requirement> reqs = requirementService.retrieveUnitRequirements(unit);
+        List<Storage> storages = storageService.retrieveCityStorage(city);
+        depleteRequisition(storages, reqs, quantity, recover);
+        storageService.updateStorages(storages);
     }
 }

@@ -1,5 +1,7 @@
 package com.example.demo.Model.Requirement;
 
+import com.example.demo.Model.Abstract.Quantitative;
+import com.example.demo.Model.Abstract.Requisition;
 import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.Resource.Resource;
 import com.example.demo.Model.Unit.Unit;
@@ -16,7 +18,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Requirement {
+public class Requirement implements Requisition {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
@@ -36,5 +38,9 @@ public class Requirement {
     private Resource resource;
 
     @NotNull
+    private Double recoveryCoef;
+
+    @NotNull
     private Integer quantity;
+
 }

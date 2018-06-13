@@ -1,5 +1,7 @@
 package com.example.demo.Model.Storage;
 
+import com.example.demo.Model.Abstract.Quantitative;
+import com.example.demo.Model.Abstract.Requisition;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Resource.Resource;
 import lombok.AllArgsConstructor;
@@ -15,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Storage {
+public class Storage implements Requisition {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
@@ -32,4 +34,9 @@ public class Storage {
 
     @NotNull
     private Integer quantity;
+
+    @Override
+    public Double getRecoveryCoef() {
+        return 0.0;
+    }
 }

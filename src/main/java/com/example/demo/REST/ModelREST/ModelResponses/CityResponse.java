@@ -37,7 +37,7 @@ public class CityResponse {
                                               List<Storage> storages,
                                               List<Production> productions,
                                               List<Garrison> garrison) {
-        return new CityResponse(city, storages, productions, garrison, null);
+        return new CityResponse(city, storages, productions, garrison,  null);
     }
 
     public static CityResponse createResponse(City city,
@@ -74,6 +74,7 @@ public class CityResponse {
         this.storage = new ArrayList<>();
         this.productions = new ArrayList<>();
         this.garrison = new ArrayList<>();
+        this.tiles = new ArrayList<>();
 
         this.id = city.getId();
         this.name = city.getName();
@@ -85,7 +86,8 @@ public class CityResponse {
         hasArchery = city.isHasArchery();
         hasBarracks = city.isHasBarracks();
         hasStables = city.isHasStables();
-        this.tiles = tiles;
+        if(tiles != null)
+            this.tiles = tiles;
         if(storages != null) {
             for (Storage storage : storages) {
                 this.storage.add(new StorageResponse(storage));

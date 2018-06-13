@@ -5,11 +5,10 @@ import com.example.demo.Model.Production.Production;
 import com.example.demo.Model.Storage.Storage;
 import com.example.demo.REST.ModelREST.ModelResponses.CityResponse;
 import com.example.demo.REST.ModelREST.ModelResponses.CityTileResponse;
-import com.example.demo.REST.ModelREST.ModelServices.CityService;
 import com.example.demo.REST.ModelREST.ModelServices.ProductionService;
 import com.example.demo.REST.ModelREST.ModelServices.StorageService;
 import com.example.demo.REST.Requests.ConstructionRequest;
-import com.example.demo.REST.Services.CityManagementService;
+import com.example.demo.REST.Services.BuildingManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,20 +20,15 @@ import java.util.List;
 
 
 @RestController
-public class CityManagementController {
+public class BuildingManagementController {
 
-    private CityManagementService managementService;
-    private StorageService storageService;
-    private ProductionService productionService;
+    private BuildingManagementService managementService;
 
     @Autowired
-    public CityManagementController(
-            CityManagementService managementService,
-            StorageService storageService,
-            ProductionService productionService) {
+    public BuildingManagementController(
+            BuildingManagementService managementService
+    ) {
         this.managementService = managementService;
-        this.storageService = storageService;
-        this.productionService = productionService;
     }
 
     @PostMapping("/citymanage/construct")
@@ -47,8 +41,8 @@ public class CityManagementController {
         }
 
         CityTileResponse tileResponse = new CityTileResponse(tile);
-        List<Storage> storages = storageService.retrieveCityStorage(tile.getCity());
-        List<Production> productions = productionService.retrieveCityProduction(tile.getCity());
+        List<Storage> storages = managementService.retrieveCityStorage(tile.getCity());
+        List<Production> productions = managementService.retrieveCityProduction(tile.getCity());
         CityResponse response = CityResponse.createResponse(tile.getCity(), storages, productions, null, tileResponse);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -63,8 +57,9 @@ public class CityManagementController {
         }
 
         CityTileResponse tileResponse = new CityTileResponse(tile);
-        List<Production> productions = productionService.retrieveCityProduction(tile.getCity());
-        CityResponse response = CityResponse.createResponse(tile.getCity(), null, productions, null, tileResponse);
+        List<Production> productions = managementService.retrieveCityProduction(tile.getCity());
+        List<Storage> storage = managementService.retrieveCityStorage(tile.getCity());
+        CityResponse response = CityResponse.createResponse(tile.getCity(), storage, productions, null, tileResponse);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

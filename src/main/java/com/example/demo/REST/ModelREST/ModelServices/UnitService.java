@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UnitService {
@@ -19,5 +20,9 @@ public class UnitService {
 
     public List<Unit> retrieveAllUnits() {
         return this.unitRepository.findAll();
+    }
+
+    public Optional<Unit> retrieveUnitByName(String name) {
+        return this.unitRepository.findByName(name);
     }
 }
