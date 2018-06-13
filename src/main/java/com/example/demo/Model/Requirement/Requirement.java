@@ -2,6 +2,7 @@ package com.example.demo.Model.Requirement;
 
 import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.Resource.Resource;
+import com.example.demo.Model.Unit.Unit;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,10 @@ public class Requirement {
     @ManyToOne
     @JoinColumn(name = "buildingTypeId")
     private BuildingType buildingType;
+
+    @ManyToOne
+    @JoinColumn(name = "unitId")
+    private Unit unit;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "resourceId")

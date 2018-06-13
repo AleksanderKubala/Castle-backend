@@ -5,6 +5,8 @@ import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.BuildingType.BuildingTypes;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.CityTile.CityTile;
+import com.example.demo.Model.Garrison.Garrison;
+import com.example.demo.Model.Garrison.GarrisonRepository;
 import com.example.demo.Model.Player.Player;
 import com.example.demo.Model.Production.Production;
 import com.example.demo.Model.Production.ProductionRepository;
@@ -57,6 +59,7 @@ public class DbTest implements CommandLineRunner{
     private ProductionRepository productionRepository;
     private RequirementRepository requirementRepository;
     private UnitRepository unitRepository;
+    private GarrisonRepository garrisonRepository;
 
     @Autowired
     public DbTest(
@@ -74,7 +77,8 @@ public class DbTest implements CommandLineRunner{
             StorageRepository storageRepository,
             ProductionRepository productionRepository,
             RequirementRepository requirementRepository,
-            UnitRepository unitRepository
+            UnitRepository unitRepository,
+            GarrisonRepository garrisonRepository
     ) {
        this.buildingTypeRepository = buildingTypeRepository;
        this.cityRepository = cityRepository;
@@ -92,6 +96,7 @@ public class DbTest implements CommandLineRunner{
        this.resourceRepository = resourceRepository;
        this.requirementRepository = requirementRepository;
        this.unitRepository = unitRepository;
+       this.garrisonRepository = garrisonRepository;
     }
 
     @Override
@@ -114,6 +119,9 @@ public class DbTest implements CommandLineRunner{
         initCityProduction();
         initBuildingProductions();
         initBuildingRequirements();
+        initGarrison();
+        initUnitRequirements();
+        initUnitProduction();
     }
 
 
@@ -398,5 +406,94 @@ public class DbTest implements CommandLineRunner{
         }
 
         cityTileRepository.saveAll(tiles);
+    }
+
+    private void initGarrison() {
+        Optional<City> city = cityRepository.findById(1);
+        if(!city.isPresent())
+            return;
+
+        List<Garrison> garrison = new ArrayList<>();
+        List<Unit> units = unitRepository.findAll();
+        for(Unit unit: units) {
+            Garrison troop = new Garrison();
+            troop.setCity(city.get());
+            troop.setUnit(unit);
+            troop.setQuantity(10);
+            garrison.add(troop);
+        }
+
+        garrisonRepository.saveAll(garrison);
+    }
+
+    private void initUnitRequirements() {
+        List<Unit> units = unitRepository.findAll();
+        List<Requirement> reqs = new ArrayList<>();
+        Optional<Resource> gold = resourceRepository.findByName(ResourceTypes.GOLD.name);
+        Optional<Resource> capacity = resourceRepository.findByName(ResourceTypes.CAPACITY.name);
+        Optional<Resource> wood = resourceRepository.findByName(ResourceTypes.WOOD.name);
+        Requirement req;
+
+        for(Unit unit: units) {
+            if(unit.getName().equals(UnitTypes.ARCHER.name)) {
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(gold.get());
+                req.setQuantity(10);
+                reqs.add(req);
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(capacity.get());
+                req.setQuantity(1);
+                reqs.add(req);
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(wood.get());
+                req.setQuantity(5);
+                reqs.add(req);
+            }
+            if(unit.getName().equals(UnitTypes.PIKEMAN.name)) {
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(gold.get());
+                req.setQuantity(5);
+                reqs.add(req);
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(capacity.get());
+                req.setQuantity(1);
+                reqs.add(req);
+            }
+            if(unit.getName().equals(UnitTypes.CAVALRY.name)) {
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(gold.get());
+                req.setQuantity(20);
+                reqs.add(req);
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(capacity.get());
+                req.setQuantity(3);
+                reqs.add(req);
+            }
+        }
+
+        requirementRepository.saveAll(reqs);
+    }
+
+    private void initUnitProduction() {
+        List<Unit> units = unitRepository.findAll();
+        List<Production> prods = new ArrayList<>();
+        Optional<Resource> food = resourceRepository.findByName(ResourceTypes.FOOD.name);
+
+        for(Unit unit: units) {
+            Production production = new Production();
+            production.setUnit(unit);
+            production.setResource(food.get());
+            production.setQuantity(-5);
+            prods.add(production);
+        }
+
+        productionRepository.saveAll(prods);
     }
 }

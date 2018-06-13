@@ -2,6 +2,7 @@ package com.example.demo.Model.Production;
 
 import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.City.City;
+import com.example.demo.Model.Unit.Unit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,6 @@ public interface ProductionRepository extends JpaRepository<Production, Integer>
     List<Production> findAllByCity(City city);
 
     List<Production> findAllByBuildingType(BuildingType buildingType);
+
+    List<Production> findAllByUnit(Unit unit);
 }

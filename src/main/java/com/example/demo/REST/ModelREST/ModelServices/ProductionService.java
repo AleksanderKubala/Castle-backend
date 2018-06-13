@@ -4,6 +4,7 @@ import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Production.Production;
 import com.example.demo.Model.Production.ProductionRepository;
+import com.example.demo.Model.Unit.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,10 @@ public class ProductionService {
 
     public List<Production> retrieveCityProduction(City city) {
         return productionRepository.findAllByCity(city);
+    }
+
+    public List<Production> retrieveUnitProduction(Unit unit) {
+        return productionRepository.findAllByUnit(unit);
     }
 
     public void updateProduction(List<Production> productions) {

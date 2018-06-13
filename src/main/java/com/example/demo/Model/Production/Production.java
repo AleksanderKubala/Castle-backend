@@ -4,6 +4,7 @@ import com.example.demo.Model.Building.Building;
 import com.example.demo.Model.BuildingType.BuildingType;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Resource.Resource;
+import com.example.demo.Model.Unit.Unit;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,10 @@ public class Production {
     @ManyToOne
     @JoinColumn(name = "buildingTypeId")
     private BuildingType buildingType;
+
+    @ManyToOne
+    @JoinColumn(name = "unitId")
+    private Unit unit;
 
     @ManyToOne
     @JoinColumn(name = "resourceId")
