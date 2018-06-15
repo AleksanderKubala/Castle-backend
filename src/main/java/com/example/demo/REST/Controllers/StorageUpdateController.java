@@ -36,25 +36,15 @@ public class StorageUpdateController {
     }
 
 
+
     /*
     @GetMapping("/update")
-    public @ResponseBody DeferredResult<List<CityResponse>> getStorageUpdate() {
-        final DeferredResult<List<CityResponse>> deferredResult = new DeferredResult<>();
-        storageUpdateService.getStorageUpdate(deferredResult);
+    public @ResponseBody Callable<List<CityResponse>> getStorageUpdate() {
+        Callable<List<CityResponse>> callable = storageUpdateService;
 
-        return deferredResult;
+
+        return callable;
     }
-
-    private List<CityResponse> formResponse() {
-        List<City> cities = cityService.retrieveAllCities();
-        List<CityResponse> response = new ArrayList<>();
-        for(City city: cities) {
-            List<Storage> storages = storageService.retrieveCityStorage(city);
-            response.add(CityResponse.createResponse(city, storages));
-        }
-
-        return response;
-    }
-*/
+    */
 
 }

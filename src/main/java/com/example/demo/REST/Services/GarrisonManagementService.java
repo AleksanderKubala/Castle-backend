@@ -39,6 +39,7 @@ public class GarrisonManagementService extends CityManagementService {
     public Garrison recruit(Integer cityId, String unitName, Integer quantity) {
         Garrison garrison = determineGarrison(cityId, unitName);
         garrison.setQuantity(garrison.getQuantity() + quantity);
+        garrison.setTotalHealth(garrison.getQuantity()*garrison.getUnit().getHealth());
 
         depleteResources(garrison.getCity(),garrison.getUnit(), quantity, false);
         recalculateCityProduction(garrison.getCity(),garrison.getUnit(), quantity, false);
@@ -52,6 +53,7 @@ public class GarrisonManagementService extends CityManagementService {
         garrison.setQuantity(garrison.getQuantity() - quantity);
         if(garrison.getQuantity() < 0)
             return null;
+        garrison.setTotalHealth(garrison.getQuantity()*garrison.getUnit().getHealth());
 
         depleteResources(garrison.getCity(),garrison.getUnit(), quantity, true);
         recalculateCityProduction(garrison.getCity(),garrison.getUnit(), quantity, true);

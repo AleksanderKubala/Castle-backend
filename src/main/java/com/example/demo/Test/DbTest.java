@@ -129,12 +129,14 @@ public class DbTest implements CommandLineRunner{
         String[] names = new String[] {
                 UnitTypes.ARCHER.name,
                 UnitTypes.PIKEMAN.name,
-                UnitTypes.CAVALRY.name
+                UnitTypes.CAVALRY.name,
+                UnitTypes.SETTLER.name
         };
         String[] displayNames = new String[] {
                 UnitTypes.ARCHER.displayName,
                 UnitTypes.PIKEMAN.displayName,
-                UnitTypes.CAVALRY.displayName
+                UnitTypes.CAVALRY.displayName,
+                UnitTypes.SETTLER.displayName
         };
 
         List<Unit> units = new ArrayList<>();
@@ -143,6 +145,30 @@ public class DbTest implements CommandLineRunner{
             unit.setName(names[i]);
             unit.setDisplayName(displayNames[i]);
             units.add(unit);
+            if(unit.getName().equals(UnitTypes.ARCHER.name)) {
+                unit.setStrength(13);
+                unit.setHealth(25);
+                unit.setSpeed(8);
+                unit.setCapacity(10);
+            }
+            if(unit.getName().equals(UnitTypes.PIKEMAN.name)) {
+                unit.setStrength(9);
+                unit.setHealth(35);
+                unit.setSpeed(5);
+                unit.setCapacity(40);
+            }
+            if(unit.getName().equals(UnitTypes.CAVALRY.name)) {
+                unit.setStrength(20);
+                unit.setHealth(55);
+                unit.setSpeed(15);
+                unit.setCapacity(20);
+            }
+            if(unit.getName().equals(UnitTypes.SETTLER.name)) {
+                unit.setStrength(1);
+                unit.setHealth(1);
+                unit.setSpeed(1);
+                unit.setCapacity(0);
+            }
         }
         unitRepository.saveAll(units);
     }
@@ -230,9 +256,9 @@ public class DbTest implements CommandLineRunner{
                 buildingType.setMainBuilding(false);
             }
             if(!names[i].equals(BuildingTypes.HOUSE.name)) {
-                buildingType.setOnlyOne(true);
+                buildingType.setInstancesLimit(1);
             } else {
-                buildingType.setOnlyOne(false);
+                buildingType.setInstancesLimit(0);
             }
             buildingTypeRepository.save(buildingType);
         }
@@ -278,8 +304,18 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void initStructureTypes() {
-        String[] names = new String[] {WorldStructureTypes.CITY.name};
-        String[] display = new String[] {WorldStructureTypes.CITY.displayName};
+        String[] names = new String[] {
+                WorldStructureTypes.CITY.name,
+                WorldStructureTypes.TREE1.name,
+                WorldStructureTypes.TREE2.name,
+                WorldStructureTypes.TREE3.name
+        };
+        String[] display = new String[] {
+                WorldStructureTypes.CITY.displayName,
+                WorldStructureTypes.TREE1.displayName,
+                WorldStructureTypes.TREE2.displayName,
+                WorldStructureTypes.TREE3.displayName
+        };
         for (int i = 0; i < names.length; i++) {
             WorldStructureType structureType = new WorldStructureType();
             structureType.setName(names[i]);
@@ -309,6 +345,7 @@ public class DbTest implements CommandLineRunner{
         }
         worldTileRepository.saveAll(tiles);
     }
+
 
     private void initCity() {
         Optional<WorldTile> opTile1 = worldTileRepository.findById(26);
@@ -420,6 +457,7 @@ public class DbTest implements CommandLineRunner{
                 troop.setCity(city);
                 troop.setUnit(unit);
                 troop.setQuantity(0);
+                troop.setTotalHealth(troop.getQuantity()*unit.getHealth());
                 garrison.add(troop);
             }
         }
@@ -433,6 +471,7 @@ public class DbTest implements CommandLineRunner{
         Optional<Resource> gold = resourceRepository.findByName(ResourceTypes.GOLD.name);
         Optional<Resource> capacity = resourceRepository.findByName(ResourceTypes.CAPACITY.name);
         Optional<Resource> wood = resourceRepository.findByName(ResourceTypes.WOOD.name);
+        Optional<Resource> food = resourceRepository.findByName(ResourceTypes.FOOD.name);
         Requirement req;
 
         for(Unit unit: units) {
@@ -484,6 +523,26 @@ public class DbTest implements CommandLineRunner{
                 req.setQuantity(3);
                 reqs.add(req);
             }
+            if(unit.getName().equals(UnitTypes.SETTLER.name)) {
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(gold.get());
+                req.setQuantity(80);
+                req.setRecoveryCoef(0.0);
+                reqs.add(req);
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(capacity.get());
+                req.setRecoveryCoef(1.0);
+                req.setQuantity(15);
+                reqs.add(req);
+                req = new Requirement();
+                req.setUnit(unit);
+                req.setResource(food.get());
+                req.setRecoveryCoef(0.0);
+                req.setQuantity(100);
+                reqs.add(req);
+            }
         }
 
         requirementRepository.saveAll(reqs);
@@ -493,13 +552,58 @@ public class DbTest implements CommandLineRunner{
         List<Unit> units = unitRepository.findAll();
         List<Production> prods = new ArrayList<>();
         Optional<Resource> food = resourceRepository.findByName(ResourceTypes.FOOD.name);
+        Optional<Resource> gold = resourceRepository.findByName(ResourceTypes.GOLD.name);
+        Production prod;
 
         for(Unit unit: units) {
-            Production production = new Production();
-            production.setUnit(unit);
-            production.setResource(food.get());
-            production.setQuantity(-5);
-            prods.add(production);
+            if(unit.getName().equals(UnitTypes.ARCHER.name)) {
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(food.get());
+                prod.setQuantity(-4);
+                prods.add(prod);
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(gold.get());
+                prod.setQuantity(-2);
+                prods.add(prod);
+            }
+            if(unit.getName().equals(UnitTypes.PIKEMAN.name)) {
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(food.get());
+                prod.setQuantity(-4);
+                prods.add(prod);
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(gold.get());
+                prod.setQuantity(-1);
+                prods.add(prod);
+            }
+            if(unit.getName().equals(UnitTypes.CAVALRY.name)) {
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(food.get());
+                prod.setQuantity(-12);
+                prods.add(prod);
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(gold.get());
+                prod.setQuantity(-4);
+                prods.add(prod);
+            }
+            if(unit.getName().equals(UnitTypes.SETTLER.name)) {
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(food.get());
+                prod.setQuantity(-50);
+                prods.add(prod);
+                prod = new Production();
+                prod.setUnit(unit);
+                prod.setResource(gold.get());
+                prod.setQuantity(-20);
+                prods.add(prod);
+            }
         }
 
         productionRepository.saveAll(prods);

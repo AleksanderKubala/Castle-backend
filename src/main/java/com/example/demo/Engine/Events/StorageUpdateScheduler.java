@@ -22,8 +22,8 @@ public class StorageUpdateScheduler extends Observable implements Runnable {
         //int difference = 60 - systemTime.getMinute();
         //LocalDateTime eventTime = systemTime.plusMinutes(difference);
         while(!done) {
-            LocalDateTime eventTime = LocalDateTime.now().plusSeconds(15);
-            int difference = 15;
+            LocalDateTime eventTime = LocalDateTime.now().plusSeconds(20);
+            int difference = 20;
             setChanged();
             notifyObservers(new StorageUpdateEvent(eventTime));
             clearChanged();

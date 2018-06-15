@@ -19,12 +19,20 @@ public class UnitResponse {
 
     private String name;
     private String displayName;
+    private Integer strength;
+    private Integer speed;
+    private Integer health;
+    private Integer capacity;
     private List<RequirementResponse> requirements;
     private List<ProductionResponse> productions;
 
     public UnitResponse(Unit unit, List<Requirement> requirements, List<Production> productions) {
         this.name = unit.getName();
         this.displayName = unit.getDisplayName();
+        this.strength = unit.getStrength();
+        this.speed = unit.getSpeed();
+        this.health = unit.getHealth();
+        this.capacity = unit.getCapacity();
         this.requirements = new ArrayList<>();
         this.productions = new ArrayList<>();
         if(requirements != null) {

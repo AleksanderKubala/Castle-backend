@@ -15,5 +15,7 @@ public interface GarrisonRepository extends JpaRepository<Garrison, Integer>{
 
     List<Garrison> findAllByCity(City city);
 
+    List<Garrison> findAllByCityAndQuantityGreaterThan(City city, Integer quantity);
+
     Optional<Garrison> findByCityAndUnit(City city, Unit unit);
 }

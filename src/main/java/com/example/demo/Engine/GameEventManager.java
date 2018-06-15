@@ -51,13 +51,7 @@ public class GameEventManager extends Observable implements Runnable {
             if(pendingEvents.size() > 0) {
                 GameEvent event = fetchEvent();
                 handleEvent(event);
-                if(updateRequested) {
-                    synchronized(updateSemaphore) {
-                        updateRequested = false;
-                        notifyObservers(event);
-                        updateSemaphore.notify();
-                    }
-                }
+                notifyObservers(event);
             } else {
                 try {
                     Thread.sleep(sleepTime * 1000);

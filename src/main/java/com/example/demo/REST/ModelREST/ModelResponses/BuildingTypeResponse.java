@@ -19,7 +19,7 @@ public class BuildingTypeResponse {
 
     private String name;
     private String displayName;
-    private Boolean onlyOne;
+    private Integer limit;
     private Boolean destructible;
     private Boolean mainBuilding;
     private List<ProductionResponse> productions;
@@ -33,7 +33,7 @@ public class BuildingTypeResponse {
         this.requirements = new ArrayList<>();
         this.name = buildingType.getName();
         this.displayName = buildingType.getDisplayName();
-        this.onlyOne = buildingType.isOnlyOne();
+        this.limit = buildingType.getInstancesLimit();
         this.destructible = buildingType.isDestructible();
         this.mainBuilding = buildingType.isMainBuilding();
         for(Production production: productions) {

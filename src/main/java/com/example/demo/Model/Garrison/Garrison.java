@@ -16,7 +16,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Garrison implements Quantitative{
+public class Garrison implements Quantitative, Comparable<Garrison>{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
@@ -34,9 +34,53 @@ public class Garrison implements Quantitative{
     @NotNull
     private Integer quantity;
 
+    @NotNull
+    private Integer totalHealth;
+
     public Garrison(City city, Unit unit) {
+        this(city, unit, 0);
+    }
+
+    public Garrison(City city, Unit unit, Integer quantity) {
         this.city = city;
         this.unit = unit;
-        this.quantity = 0;
+        this.quantity = quantity;
+        this.totalHealth = this.quantity*this.unit.getHealth();
+    }
+
+    public Garrison(Garrison garrison) {
+        this();
+        this.setId(garrison.getId());
+        this.setUnit(garrison.getUnit());
+        this.setCity(garrison.getCity());
+        this.setQuantity(garrison.getQuantity());
+        this.totalHealth = garrison.getTotalHealth();
+    }
+
+    public Garrison(Garrison garrison, Integer quantity) {
+        this();
+        this.setId(garrison.getId());
+        this.setUnit(garrison.getUnit());
+        this.setCity(garrison.getCity());
+        this.setQuantity(quantity);
+        this.totalHealth = this.unit.getHealth()*this.quantity;
+    }
+
+    @Override
+    public int compareTo(Garrison o) {
+        return this.getUnit().compareTo(o.getUnit());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null)
+            return false;
+
+        if(this.getClass() != o.getClass())
+            return false;
+
+        Garrison other = (Garrison)o;
+
+        return (this.getId() == other.getId());
     }
 }

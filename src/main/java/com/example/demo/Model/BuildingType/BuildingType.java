@@ -28,7 +28,7 @@ public class BuildingType {
     private String displayName;
 
     @NotNull
-    private boolean onlyOne;
+    private Integer instancesLimit;
 
     @NotNull
     private boolean destructible;

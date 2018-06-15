@@ -25,12 +25,20 @@ public class GarrisonService {
         return this.garrisonRepository.findAllByCity(city);
     }
 
+    public List<Garrison> retrieveCityGarrisonWithUnitsMoreThan(City city, Integer quantity) {
+        return this.garrisonRepository.findAllByCityAndQuantityGreaterThan(city, quantity);
+    }
+
     public Optional<Garrison> retrieveCityGarrison(City city, Unit unit) {
         return this.garrisonRepository.findByCityAndUnit(city, unit);
     }
 
     public void updateGarrison(Garrison garrison) {
         this.garrisonRepository.save(garrison);
+    }
+
+    public void updateGarrison(List<Garrison> garrison) {
+        this.garrisonRepository.saveAll(garrison);
     }
 
 }

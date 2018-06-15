@@ -2,6 +2,8 @@ package com.example.demo.REST.ModelREST.ModelServices;
 
 import com.example.demo.Model.Building.Building;
 import com.example.demo.Model.Building.BuildingRepository;
+import com.example.demo.Model.BuildingType.BuildingType;
+import com.example.demo.Model.City.City;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +23,9 @@ public class BuildingService {
 
     public void remove(Building building) {
         buildingRepository.delete(building);
+    }
+
+    public Integer countBy(City city, BuildingType type) {
+        return this.buildingRepository.countAllByCityAndType(city, type);
     }
 }

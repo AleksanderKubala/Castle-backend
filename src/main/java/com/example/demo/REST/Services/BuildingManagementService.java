@@ -53,6 +53,10 @@ public class BuildingManagementService extends CityManagementService {
             return null;
         }
 
+        Integer buildingCount = buildingService.countBy(tile.getCity(), type.get());
+        if(buildingCount + 1 > type.get().getInstancesLimit())
+            return null;
+
         depleteResources(tile.getCity(), type.get(), 1, false);
 
         Building building = new Building(type.get(), tile);

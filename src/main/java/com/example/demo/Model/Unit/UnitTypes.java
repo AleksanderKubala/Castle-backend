@@ -3,7 +3,8 @@ package com.example.demo.Model.Unit;
 public enum UnitTypes {
     ARCHER("archer", "Archer"),
     PIKEMAN("pikeman", "Pikeman"),
-    CAVALRY("cavalry", "Cavalry");
+    CAVALRY("cavalry", "Cavalry"),
+    SETTLER("settler", "Settler");
 
     public final String name;
     public final String displayName;
