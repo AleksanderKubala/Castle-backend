@@ -217,6 +217,24 @@ public class DbTest implements CommandLineRunner{
                 ResourceTypes.CAPACITY.name,
                 ResourceTypes.HAPPINESS.name
         };
+
+        Integer[] startingVolumes = new Integer[] {
+                ResourceTypes.WOOD.startingVolume,
+                ResourceTypes.STONE.startingVolume,
+                ResourceTypes.GOLD.startingVolume,
+                ResourceTypes.FOOD.startingVolume,
+                ResourceTypes.CAPACITY.startingVolume,
+                ResourceTypes.HAPPINESS.startingVolume
+        };
+
+        Boolean[] poolResouces = new Boolean[] {
+                ResourceTypes.WOOD.poolResource,
+                ResourceTypes.STONE.poolResource,
+                ResourceTypes.GOLD.poolResource,
+                ResourceTypes.FOOD.poolResource,
+                ResourceTypes.CAPACITY.poolResource,
+                ResourceTypes.HAPPINESS.poolResource
+        };
         Boolean[] plunderableValues = new Boolean[] {true, true, true, true, false, false};
         List<Resource> resources = new ArrayList<>();
 
@@ -224,6 +242,8 @@ public class DbTest implements CommandLineRunner{
             Resource resource = new Resource();
             resource.setName(names[i]);
             resource.setPlunderable(plunderableValues[i]);
+            resource.setStartingVolume(startingVolumes[i]);
+            resource.setPoolResource(poolResouces[i]);
             resources.add(resource);
         }
 
@@ -258,7 +278,7 @@ public class DbTest implements CommandLineRunner{
             if(!names[i].equals(BuildingTypes.HOUSE.name)) {
                 buildingType.setInstancesLimit(1);
             } else {
-                buildingType.setInstancesLimit(0);
+                buildingType.setInstancesLimit(8);
             }
             buildingTypeRepository.save(buildingType);
         }
@@ -275,6 +295,7 @@ public class DbTest implements CommandLineRunner{
                 production.setResource(gold.get());
                 if (!type.isDestructible()) {
                     production.setQuantity(6);
+
                 } else {
                     production.setQuantity(-1);
                 }
@@ -287,8 +308,16 @@ public class DbTest implements CommandLineRunner{
     private void initBuildingRequirements() {
         List<BuildingType> types = buildingTypeRepository.findAll();
         List<Requirement> requirements = new ArrayList<>();
+        Optional<Resource> capacity = resourceRepository.findByName(ResourceTypes.CAPACITY.name);
         for(BuildingType type: types) {
-            if(!type.getName().equals(BuildingTypes.CASTLE.name)) {
+            if(type.getName().equals(BuildingTypes.CASTLE.name)) {
+                Requirement req = new Requirement();
+                req.setBuildingType(type);
+                req.setResource(capacity.get());
+                req.setQuantity(-20);
+                req.setRecoveryCoef(1.0);
+                requirements.add(req);
+            } else {
                 Requirement req = new Requirement();
                 req.setBuildingType(type);
                 Optional<Resource> wood = resourceRepository.findByName(ResourceTypes.WOOD.name);
@@ -297,6 +326,14 @@ public class DbTest implements CommandLineRunner{
                     req.setQuantity(20);
                     req.setRecoveryCoef(0.5);
                 }
+                requirements.add(req);
+            }
+            if(type.getName().equals(BuildingTypes.HOUSE.name)) {
+                Requirement req = new Requirement();
+                req.setBuildingType(type);
+                req.setResource(capacity.get());
+                req.setQuantity(-5);
+                req.setRecoveryCoef(1.0);
                 requirements.add(req);
             }
         }
@@ -396,7 +433,7 @@ public class DbTest implements CommandLineRunner{
                 Storage storage = new Storage();
                 storage.setCity(city);
                 storage.setResource(resource);
-                storage.setQuantity(100);
+                storage.setQuantity(resource.getStartingVolume());
                 storages.add(storage);
             }
         }

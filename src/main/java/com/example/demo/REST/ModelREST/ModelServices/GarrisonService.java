@@ -8,6 +8,7 @@ import com.example.demo.REST.ModelREST.ModelResponses.GarrisonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,10 +16,15 @@ import java.util.Optional;
 public class GarrisonService {
 
     private GarrisonRepository garrisonRepository;
+    private UnitService unitService;
 
     @Autowired
-    public GarrisonService(GarrisonRepository garrisonRepository) {
+    public GarrisonService(
+            GarrisonRepository garrisonRepository,
+            UnitService unitService
+    ) {
         this.garrisonRepository = garrisonRepository;
+        this.unitService = unitService;
     }
 
     public List<Garrison> retrieveCityGarrison(City city) {
@@ -39,6 +45,23 @@ public class GarrisonService {
 
     public void updateGarrison(List<Garrison> garrison) {
         this.garrisonRepository.saveAll(garrison);
+    }
+
+    public List<Garrison> createCityGarrison(City city) {
+        List<Garrison> garrison = new ArrayList<>();
+        List<Unit> units = unitService.retrieveAllUnits();
+        for (Unit unit : units) {
+            Garrison troop = new Garrison();
+            troop.setCity(city);
+            troop.setUnit(unit);
+            troop.setQuantity(0);
+            troop.setTotalHealth(troop.getQuantity()*unit.getHealth());
+            garrison.add(troop);
+        }
+
+        garrisonRepository.saveAll(garrison);
+
+        return garrison;
     }
 
 }

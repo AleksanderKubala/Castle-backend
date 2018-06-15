@@ -1,5 +1,6 @@
 package com.example.demo.REST.ModelREST.ModelServices;
 
+import com.example.demo.Model.City.City;
 import com.example.demo.Model.World.World;
 import com.example.demo.Model.World.WorldRepository;
 import com.example.demo.Model.WorldTile.WorldTile;
@@ -33,5 +34,18 @@ public class WorldService {
 
     public List<WorldTile> retrieveWorldTiles(World world) {
         return worldTileRepository.findAllByWorld(world);
+    }
+
+    public Optional<WorldTile> retrieveWorldTile(Integer worldId, Integer row, Integer column) {
+        Optional<World> world = worldRepository.findById(worldId);
+        if(!world.isPresent())
+            return Optional.empty();
+        return this.worldTileRepository.findByWorldAndRowNumberAndColumnNumber(world.get(), row, column);
+    }
+
+    public WorldTile updateTile(WorldTile tile, City city) {
+        tile.setCity(city);
+        worldTileRepository.save(tile);
+        return tile;
     }
 }

@@ -80,7 +80,10 @@ public abstract class CityManagementService {
                     if(recover) {
                         sourceReq.setQuantity(sourceReq.getQuantity() + ((int)(leechReq.getQuantity() * quantity * leechReq.getRecoveryCoef())));
                     } else {
-                        sourceReq.setQuantity(sourceReq.getQuantity() - (leechReq.getQuantity() * quantity));
+                        if(!sourceReq.getResource().getPoolResource())
+                            sourceReq.setQuantity(sourceReq.getQuantity() - (leechReq.getQuantity() * quantity));
+                        else
+                            sourceReq.setQuantity(sourceReq.getQuantity() - ((int)(leechReq.getQuantity() * quantity * leechReq.getRecoveryCoef())));
                     }
                 }
             }

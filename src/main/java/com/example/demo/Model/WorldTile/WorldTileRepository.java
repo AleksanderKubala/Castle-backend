@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WorldTileRepository extends JpaRepository<WorldTile, Integer> {
@@ -13,4 +14,6 @@ public interface WorldTileRepository extends JpaRepository<WorldTile, Integer> {
     List<WorldTile> findAll();
 
     List<WorldTile> findAllByWorld(World world);
+
+    Optional<WorldTile> findByWorldAndRowNumberAndColumnNumber(World world, Integer rowNumber, Integer colNumber);
 }

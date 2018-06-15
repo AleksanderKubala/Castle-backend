@@ -26,6 +26,12 @@ public class Resource {
     @NotNull
     private Boolean plunderable;
 
+    @NotNull
+    private Integer startingVolume;
+
+    @NotNull
+    private Boolean poolResource;
+
     @Override
     public boolean equals(Object o) {
         if(o == null)
