@@ -29,7 +29,11 @@ public class LoginController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        LoginResponse response = new LoginResponse(player.get());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        if(player.get().getPassword().equals(request.getPassword())) {
+            LoginResponse response = new LoginResponse(player.get());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
 }

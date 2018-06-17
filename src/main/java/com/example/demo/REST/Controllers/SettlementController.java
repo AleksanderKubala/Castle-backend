@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -70,7 +69,7 @@ public class SettlementController {
         if(settlers == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        City city = cityService.buildNewCity(player.get(), tile.get());
+        City city = cityService.buildNewCity(player.get(), tile.get(), false);
         if(city == null)
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 

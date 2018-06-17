@@ -115,6 +115,8 @@ public class BattleService extends CityManagementService {
         if(leftHealth < 0)
             leftHealth = 0;
         int remaining = (int)Math.ceil((double)leftHealth/(double)receiver.getUnit().getHealth());
+        if(remaining < 0)
+            remaining = 0;
         receiver.setQuantity(remaining);
         receiver.setTotalHealth(leftHealth);
 

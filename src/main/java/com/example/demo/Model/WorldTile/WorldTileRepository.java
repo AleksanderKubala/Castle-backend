@@ -16,4 +16,12 @@ public interface WorldTileRepository extends JpaRepository<WorldTile, Integer> {
     List<WorldTile> findAllByWorld(World world);
 
     Optional<WorldTile> findByWorldAndRowNumberAndColumnNumber(World world, Integer rowNumber, Integer colNumber);
+
+    List<WorldTile> findAllByWorldAndCityNullAndStructureNullAndColumnNumberGreaterThanAndColumnNumberLessThanAndRowNumberGreaterThanAndRowNumberLessThan(
+            World world,
+            Integer minCol,
+            Integer maxCol,
+            Integer minRow,
+            Integer maxRow
+    );
 }

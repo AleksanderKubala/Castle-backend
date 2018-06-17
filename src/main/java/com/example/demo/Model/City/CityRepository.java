@@ -1,6 +1,7 @@
 package com.example.demo.Model.City;
 
 import com.example.demo.Model.Player.Player;
+import com.example.demo.Model.World.World;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

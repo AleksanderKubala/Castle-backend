@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +24,7 @@ public class CityService {
     private CityTileRepository cityTileRepository;
     private WorldStructureTypeService worldStructureTypeService;
     private TerrainTypeService terrainService;
-    private String newCityName;
+    private String defaultNewCityName;
 
     @Autowired
     public CityService(
@@ -38,7 +37,7 @@ public class CityService {
         this.cityTileRepository = cityTileRepository;
         this.worldStructureTypeService = worldStructureTypeService;
         this.terrainService = terrainService;
-        this.newCityName = "NewCity";
+        this.defaultNewCityName = "NewCity";
     }
 
     public Optional<City> retrieveCityById(Integer id) {
@@ -65,21 +64,20 @@ public class CityService {
         cityTileRepository.save(tile);
     }
 
-    public City buildNewCity(Player player, WorldTile tile) {
+    public City buildNewCity(Player player, WorldTile tile, String name, boolean capital) {
         Optional<WorldStructureType> type = worldStructureTypeService.retrieveStructureTypeByName(WorldStructureTypes.CITY.name);
         if (!type.isPresent())
             return null;
 
         City city = new City();
-        Integer cityCount = cityRepository.countAllByPlayer(player);
-        city.setName(this.newCityName + (cityCount + 1));
+        city.setName(name);
         city.setTile(tile);
         tile.setCity(city);
         city.setPlayer(player);
         city.setType(type.get());
         city.setColumns(16);
         city.setRows(9);
-        city.setCapital(false);
+        city.setCapital(capital);
         city.setHasArchery(false);
         city.setHasBarracks(false);
         city.setHasMainBuilding(false);
@@ -87,6 +85,12 @@ public class CityService {
         cityRepository.save(city);
 
         return city;
+    }
+
+    public City buildNewCity(Player player, WorldTile tile, boolean capital) {
+        Integer cityCount = cityRepository.countAllByPlayer(player);
+        String name = this.defaultNewCityName + (cityCount + 1);
+        return buildNewCity(player, tile, name, capital);
     }
 
     public List<CityTile> createCityTiles(City city) {
