@@ -37,7 +37,10 @@ public class GarrisonManagementService extends CityManagementService {
     }
 
     public Garrison recruit(Integer cityId, String unitName, Integer quantity) {
-        Garrison garrison = determineGarrison(cityId, unitName);
+        Optional<Garrison> opGarrison = determineGarrison(cityId, unitName);
+        if(!opGarrison.isPresent())
+            return null;
+        Garrison garrison = opGarrison.get();
         garrison.setQuantity(garrison.getQuantity() + quantity);
         garrison.setTotalHealth(garrison.getQuantity()*garrison.getUnit().getHealth());
 
@@ -49,7 +52,10 @@ public class GarrisonManagementService extends CityManagementService {
     }
 
     public Garrison dismiss(Integer cityId, String unitName, Integer quantity) {
-        Garrison garrison = determineGarrison(cityId, unitName);
+        Optional<Garrison> opGarrison = determineGarrison(cityId, unitName);
+        if(!opGarrison.isPresent())
+            return null;
+        Garrison garrison = opGarrison.get();
         garrison.setQuantity(garrison.getQuantity() - quantity);
         if(garrison.getQuantity() < 0)
             return null;
@@ -62,21 +68,17 @@ public class GarrisonManagementService extends CityManagementService {
         return garrison;
     }
 
-    private Garrison determineGarrison(Integer cityId, String unitName) {
+    private Optional<Garrison> determineGarrison(Integer cityId, String unitName) {
         Optional<City> city = cityService.retrieveCityById(cityId);
         if(!city.isPresent())
-            return null;
+            return Optional.empty();
 
         Optional<Unit> unit = unitService.retrieveUnitByName(unitName);
         if(!unit.isPresent()) {
-            return null;
+            return Optional.empty();
         }
 
-        Optional<Garrison> opGarrison = garrisonService.retrieveCityGarrison(city.get(), unit.get());
-        Garrison garrison;
-        garrison = opGarrison.isPresent() ? opGarrison.get() : new Garrison(city.get(), unit.get());
-
-        return garrison;
+        return garrisonService.retrieveCityGarrison(city.get(), unit.get());
     }
 
 }

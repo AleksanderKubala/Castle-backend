@@ -2,6 +2,8 @@ package com.example.demo.REST.Services;
 
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Garrison.Garrison;
+import com.example.demo.Model.Resource.Resource;
+import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.Unit.Unit;
 import com.example.demo.REST.ModelREST.ModelServices.*;
 import com.example.demo.REST.Requests.GarrisonRequest;
@@ -29,7 +31,12 @@ public class BattleService extends CityManagementService {
         this.unitService = unitService;
     }
 
-    public BattleResponse resolveBattle(Integer attackerCity, Integer targetCity, List<GarrisonRequest> troops) {
+    public BattleResponse resolveBattle(
+            Integer attackerCity,
+            Integer targetCity,
+            List<GarrisonRequest> troops,
+            List<Resource> toPlunder
+    ) {
         Optional<City> attacker = cityService.retrieveCityById(attackerCity);
         Optional<City> target = cityService.retrieveCityById(targetCity);
         if((!attacker.isPresent()) || (!target.isPresent()))
@@ -80,7 +87,22 @@ public class BattleService extends CityManagementService {
             recalculateCityProduction(target.get(), troop.getUnit(), Math.abs(troop.getQuantity()), true);
         }
 
-        return new BattleResponse(attacker.get(), target.get(), attackLosses, targetLosses, attackerWon);
+        BattleResponse response = new BattleResponse(attacker.get(), target.get(), attackLosses, targetLosses, attackerWon);
+
+        if(attackerWon){
+            List<Storage> plunder = plunder(target.get(), attackTroops, toPlunder);
+            List<Storage> attackerStorage = storageService.retrieveCityStorage(attacker.get());
+            for(Storage resourcePlunder: plunder) {
+                for(Storage resourceStorage: attackerStorage) {
+                    if(resourcePlunder.equals(resourceStorage))
+                        resourceStorage.setQuantity(resourceStorage.getQuantity() + resourcePlunder.getQuantity());
+                }
+            }
+            storageService.updateStorages(attackerStorage);
+            response.setPlunder(plunder);
+        }
+
+        return response;
     }
 
     private List<Garrison> createAttackGroup(City city, List<GarrisonRequest> troops) {
@@ -139,5 +161,48 @@ public class BattleService extends CityManagementService {
             cityTroop.setTotalHealth(cityTroop.getQuantity()*cityTroop.getUnit().getHealth());
         }
         garrisonService.updateGarrison(cityGarrison);
+    }
+
+    private List<Storage> plunder(City target, List<Garrison> attackTroops, List<Resource> toPlunder) {
+        Integer capacitySum = 0;
+        List<Storage> plunder = new ArrayList<>();
+        for(Garrison troop: attackTroops) {
+            capacitySum += (troop.getQuantity()*troop.getUnit().getCapacity());
+        }
+
+        Integer singleResourceVolume = capacitySum / toPlunder.size();
+        List<Storage> targetStorage = storageService.retrieveCityStorage(target);
+        Collections.sort(targetStorage);
+        for(Resource resource: toPlunder) {
+            for (Storage storage : targetStorage) {
+                if(storage.getResource().equals(resource)) {
+                    Storage plunderResource = plunderResource(storage, capacitySum, singleResourceVolume);
+                    capacitySum -= plunderResource.getQuantity();
+                    plunder.add(plunderResource);
+                }
+            }
+        }
+        storageService.updateStorages(targetStorage);
+        return plunder;
+    }
+
+    private Storage plunderResource(Storage storage, Integer totalCapacityLeft, Integer singleResourceVolume) {
+        Storage plunder = new Storage();
+        plunder.setResource(storage.getResource());
+        int singleResourceMaxPlunder = totalCapacityLeft >= singleResourceVolume ? singleResourceVolume : totalCapacityLeft - singleResourceVolume;
+        if ( storage.getQuantity() <= 0)
+            plunder.setQuantity(0);
+        else {
+            int volumeDifference = storage.getQuantity() - singleResourceMaxPlunder;
+            if(volumeDifference >= 0) {
+                storage.setQuantity(storage.getQuantity() - singleResourceMaxPlunder);
+                plunder.setQuantity(singleResourceMaxPlunder);
+            }
+            else {
+                storage.setQuantity(0);
+                plunder.setQuantity(singleResourceMaxPlunder + volumeDifference);
+            }
+        }
+        return plunder;
     }
 }

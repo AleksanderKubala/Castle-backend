@@ -8,6 +8,7 @@ import com.example.demo.REST.ModelREST.ModelServices.CityService;
 import com.example.demo.REST.ModelREST.ModelServices.ProductionService;
 import com.example.demo.REST.ModelREST.ModelServices.StorageService;
 import com.example.demo.REST.Services.StorageUpdateService;
+import com.example.demo.WebSocket.GreetingController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ public class GameEventManager extends Observable implements Runnable {
     private CityService cityService;
     private StorageService storageService;
     private ProductionService productionService;
+    private GreetingController controller;
     private List<GameEvent> pendingEvents;
     private final Object semaphore = new Object();
     private final Object updateSemaphore = new Object();
@@ -32,10 +34,12 @@ public class GameEventManager extends Observable implements Runnable {
     public GameEventManager(
             CityService cityService,
             StorageService storageService,
-            ProductionService productionService) {
+            ProductionService productionService,
+            GreetingController controller) {
         this.cityService = cityService;
         this.storageService = storageService;
         this.productionService = productionService;
+        this.controller = controller;
         pendingEvents = new ArrayList<>();
         sleepTime = 70;
         done = false;
@@ -51,7 +55,7 @@ public class GameEventManager extends Observable implements Runnable {
             if(pendingEvents.size() > 0) {
                 GameEvent event = fetchEvent();
                 handleEvent(event);
-                notifyObservers(event);
+                controller.fireGreeting();
             } else {
                 try {
                     Thread.sleep(sleepTime * 1000);
