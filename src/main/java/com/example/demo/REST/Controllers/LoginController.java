@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@RestController("/login")
-@CrossOrigin(origins = "http://localhost:4200")
+@RestController
 public class LoginController {
 
     private PlayerRepository playerRepository;
@@ -21,8 +20,9 @@ public class LoginController {
     public LoginController(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
     }
+    /*
 
-    @PostMapping()
+    @PostMapping("/signin")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
         Optional<Player> player = playerRepository.findByUsername(request.getUsername());
         if(!player.isPresent()) {
@@ -36,4 +36,5 @@ public class LoginController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+    */
 }

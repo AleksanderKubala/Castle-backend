@@ -49,7 +49,6 @@ public class CityController {
     }
 
     @GetMapping("/city/{id}")
-    @CrossOrigin(origins = "http://localhost:4200/")
     public ResponseEntity<CityResponse> getCity(@PathVariable Integer id) {
         Optional<City> city = cityService.retrieveCityById(id);
         if(!city.isPresent())
