@@ -12,4 +12,6 @@ public interface ResourceRepository extends JpaRepository<Resource, Integer> {
     List<Resource> findAll();
 
     Optional<Resource> findByName(String name);
+
+    List<Resource> findAllByNameIn(List<String> name);
 }

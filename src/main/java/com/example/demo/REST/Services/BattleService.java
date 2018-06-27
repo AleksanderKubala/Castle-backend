@@ -2,7 +2,10 @@ package com.example.demo.REST.Services;
 
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Garrison.Garrison;
+import com.example.demo.Model.Resource.Resource;
+import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.Unit.Unit;
+import com.example.demo.Properties.BattleProperties;
 import com.example.demo.REST.ModelREST.ModelServices.*;
 import com.example.demo.REST.Requests.GarrisonRequest;
 import com.example.demo.REST.Responses.BattleResponse;
@@ -15,6 +18,7 @@ import java.util.*;
 public class BattleService extends CityManagementService {
 
     private UnitService unitService;
+    private BattleProperties battleProperties;
 
     @Autowired
     protected BattleService(
@@ -23,13 +27,20 @@ public class BattleService extends CityManagementService {
             RequirementService requirementService,
             ProductionService productionService,
             GarrisonService garrisonService,
-            UnitService unitService
+            UnitService unitService,
+            BattleProperties battleProperties
     ) {
         super(cityService, storageService, requirementService, productionService, garrisonService);
         this.unitService = unitService;
+        this.battleProperties = battleProperties;
     }
 
-    public BattleResponse resolveBattle(Integer attackerCity, Integer targetCity, List<GarrisonRequest> troops) {
+    public BattleResponse resolveBattle(
+            Integer attackerCity,
+            Integer targetCity,
+            List<GarrisonRequest> troops,
+            List<Resource> toPlunder
+    ) {
         Optional<City> attacker = cityService.retrieveCityById(attackerCity);
         Optional<City> target = cityService.retrieveCityById(targetCity);
         if((!attacker.isPresent()) || (!target.isPresent()))
@@ -68,8 +79,12 @@ public class BattleService extends CityManagementService {
         }
         attackLosses = countCasualties(attackTroops, attackLosses);
         targetLosses = countCasualties(targetTroops, targetLosses);
-        applyLosses(attacker.get(), attackLosses);
-        applyLosses(target.get(), targetLosses);
+        healTroops(attackTroops);
+        healTroops(targetTroops);
+        garrisonService.updateGarrison(attackTroops);
+        garrisonService.updateGarrison(targetTroops);
+        //applyLosses(attacker.get(), attackLosses);
+        //applyLosses(target.get(), targetLosses);
 
         for(Garrison troop: attackLosses) {
             depleteResources(attacker.get(), troop.getUnit(), Math.abs(troop.getQuantity()), true);
@@ -80,7 +95,22 @@ public class BattleService extends CityManagementService {
             recalculateCityProduction(target.get(), troop.getUnit(), Math.abs(troop.getQuantity()), true);
         }
 
-        return new BattleResponse(attacker.get(), target.get(), attackLosses, targetLosses, attackerWon);
+        BattleResponse response = new BattleResponse(attacker.get(), target.get(), attackLosses, targetLosses, attackerWon);
+
+        if(attackerWon){
+            List<Storage> plunder = plunder(target.get(), attackTroops, toPlunder);
+            List<Storage> attackerStorage = storageService.retrieveCityStorage(attacker.get());
+            for(Storage resourcePlunder: plunder) {
+                for(Storage resourceStorage: attackerStorage) {
+                    if(resourcePlunder.equals(resourceStorage))
+                        resourceStorage.setQuantity(resourceStorage.getQuantity() + resourcePlunder.getQuantity());
+                }
+            }
+            storageService.updateStorages(attackerStorage);
+            response.setPlunder(plunder);
+        }
+
+        return response;
     }
 
     private List<Garrison> createAttackGroup(City city, List<GarrisonRequest> troops) {
@@ -109,7 +139,7 @@ public class BattleService extends CityManagementService {
 
         Random random = new Random();
         Garrison receiver = attacked.get(random.nextInt(troopIndex.size()));
-        double luck = 0.75 + random.nextDouble()*0.5;
+        double luck = battleProperties.getMinimumMultiplierValue() + random.nextDouble()*battleProperties.getMultiplierValueRange();
         int damage = ((int)(attacker.getQuantity()*attacker.getUnit().getStrength()*luck));
         int leftHealth = receiver.getTotalHealth() - damage;
         if(leftHealth < 0)
@@ -131,13 +161,53 @@ public class BattleService extends CityManagementService {
         return original;
     }
 
-    private void applyLosses(City city, List<Garrison> losses) {
-        List<Garrison> cityGarrison = garrisonService.retrieveCityGarrison(city);
-        for(Garrison loss: losses) {
-            Garrison cityTroop = cityGarrison.get(cityGarrison.indexOf(loss));
-            cityTroop.setQuantity(cityTroop.getQuantity() + loss.getQuantity());
-            cityTroop.setTotalHealth(cityTroop.getQuantity()*cityTroop.getUnit().getHealth());
+
+    private void healTroops(List<Garrison> remains) {
+        for(Garrison remain: remains) {
+            remain.setTotalHealth(remain.getQuantity()*remain.getUnit().getHealth());
         }
-        garrisonService.updateGarrison(cityGarrison);
+    }
+
+    private List<Storage> plunder(City target, List<Garrison> attackTroops, List<Resource> toPlunder) {
+        Integer capacitySum = 0;
+        List<Storage> plunder = new ArrayList<>();
+        for(Garrison troop: attackTroops) {
+            capacitySum += (troop.getQuantity()*troop.getUnit().getCapacity());
+        }
+
+        Integer singleResourceVolume = capacitySum / toPlunder.size();
+        List<Storage> targetStorage = storageService.retrieveCityStorage(target);
+        Collections.sort(targetStorage);
+        for(Resource resource: toPlunder) {
+            for (Storage storage : targetStorage) {
+                if(storage.getResource().equals(resource)) {
+                    Storage plunderResource = plunderResource(storage, capacitySum, singleResourceVolume);
+                    capacitySum -= plunderResource.getQuantity();
+                    plunder.add(plunderResource);
+                }
+            }
+        }
+        storageService.updateStorages(targetStorage);
+        return plunder;
+    }
+
+    private Storage plunderResource(Storage storage, Integer totalCapacityLeft, Integer singleResourceVolume) {
+        Storage plunder = new Storage();
+        plunder.setResource(storage.getResource());
+        int singleResourceMaxPlunder = totalCapacityLeft >= singleResourceVolume ? singleResourceVolume : totalCapacityLeft - singleResourceVolume;
+        if ( storage.getQuantity() <= 0)
+            plunder.setQuantity(0);
+        else {
+            int volumeDifference = storage.getQuantity() - singleResourceMaxPlunder;
+            if(volumeDifference >= 0) {
+                storage.setQuantity(storage.getQuantity() - singleResourceMaxPlunder);
+                plunder.setQuantity(singleResourceMaxPlunder);
+            }
+            else {
+                storage.setQuantity(0);
+                plunder.setQuantity(singleResourceMaxPlunder + volumeDifference);
+            }
+        }
+        return plunder;
     }
 }

@@ -11,13 +11,14 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Comparator;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Storage implements Requisition {
+public class Storage implements Requisition, Comparable<Storage> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "public")
@@ -38,5 +39,24 @@ public class Storage implements Requisition {
     @Override
     public Double getRecoveryCoef() {
         return 0.0;
+    }
+
+    @Override
+    public int compareTo(Storage o) {
+        return Comparator.comparingInt(Storage::getQuantity)
+                .compare(this, o);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o == null)
+            return false;
+
+        if(this.getClass() != o.getClass())
+            return false;
+
+        Storage other = (Storage)o;
+
+        return this.getResource().equals(other.getResource());
     }
 }

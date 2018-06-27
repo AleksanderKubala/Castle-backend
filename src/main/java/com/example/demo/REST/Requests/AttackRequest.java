@@ -16,4 +16,5 @@ public class AttackRequest {
     private Integer attackerCity;
     private Integer targetCity;
     private List<GarrisonRequest> troops;
+    private List<String> plunder;
 }

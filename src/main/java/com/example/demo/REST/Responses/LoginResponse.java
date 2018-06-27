@@ -14,10 +14,12 @@ import lombok.Setter;
 public class LoginResponse {
 
     private String username;
+    private String token;
     private WorldResponse world;
 
-    public LoginResponse(Player player) {
+    public LoginResponse(Player player, String token) {
         this.username = player.getUsername();
         this.world = new WorldResponse(player.getWorld());
+        this.token = token;
     }
 }

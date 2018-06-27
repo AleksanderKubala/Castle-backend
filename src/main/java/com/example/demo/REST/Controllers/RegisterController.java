@@ -2,11 +2,9 @@ package com.example.demo.REST.Controllers;
 
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Player.Player;
-import com.example.demo.Model.World.World;
 import com.example.demo.Model.WorldTile.WorldTile;
 import com.example.demo.REST.ModelREST.ModelServices.*;
 import com.example.demo.REST.Requests.RegisterRequest;
-import com.example.demo.REST.Services.GarrisonManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +23,6 @@ public class RegisterController {
     private GarrisonService garrisonService;
     private ProductionService productionService;
     private StorageService storageService;
-
 
     @Autowired
     public RegisterController(

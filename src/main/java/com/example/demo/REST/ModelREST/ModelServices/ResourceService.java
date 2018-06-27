@@ -20,4 +20,8 @@ public class ResourceService {
     public List<Resource> retrieveResources() {
         return resourceRepository.findAll();
     }
+
+    public List<Resource> retrieveResourcesByNames(List<String> names) {
+        return this.resourceRepository.findAllByNameIn(names);
+    }
 }
