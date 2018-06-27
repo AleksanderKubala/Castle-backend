@@ -99,7 +99,13 @@ INSERT  INTO public.building_type (id, name, display_name, destructible, instanc
   VALUES ((select nextval('buildingtype_seq')),'barracks', 'Barracks', true, 1, false);
 
 INSERT  INTO public.building_type (id, name, display_name, destructible, instances_limit, main_building)
-  VALUES ((select nextval('buildingtype_seq')),'stables', 'Stables', true, 1, true);
+  VALUES ((select nextval('buildingtype_seq')),'stables', 'Stables', true, 1, false);
+
+INSERT  INTO public.building_type (id, name, display_name, destructible, instances_limit, main_building)
+VALUES ((select nextval('buildingtype_seq')),'farm', 'Farm', true, 6, false);
+
+INSERT  INTO public.building_type (id, name, display_name, destructible, instances_limit, main_building)
+VALUES ((select nextval('buildingtype_seq')),'market', 'Market', true, 3, false);
 
 -- terrains
 
@@ -350,8 +356,18 @@ VALUES
     (select nextval('requirement_seq')),
     (select id from public.building_type where name = 'archery'),
     (select id from public.resource where name = 'wood'),
-    20,
+    80,
     0.5
+  );
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'archery'),
+    (select id from public.resource where name = 'gold'),
+    20,
+    0.0
   );
 
 --building type requirements: Barracks
@@ -362,7 +378,17 @@ VALUES
     (select nextval('requirement_seq')),
     (select id from public.building_type where name = 'barracks'),
     (select id from public.resource where name = 'wood'),
-    20,
+    30,
+    0.5
+  );
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'barracks'),
+    (select id from public.resource where name = 'stone'),
+    30,
     0.5
   );
 
@@ -374,7 +400,81 @@ VALUES
     (select nextval('requirement_seq')),
     (select id from public.building_type where name = 'stables'),
     (select id from public.resource where name = 'wood'),
+    60,
+    0.5
+  );
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'stables'),
+    (select id from public.resource where name = 'stone'),
     20,
+    0.5
+  );
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'stables'),
+    (select id from public.resource where name = 'gold'),
+    40,
+    0.0
+  );
+
+-- building type requirements: Farm
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'farm'),
+    (select id from public.resource where name = 'wood'),
+    30,
+    0.5
+  );
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'farm'),
+    (select id from public.resource where name = 'stone'),
+    10,
+    0.5
+  );
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'farm'),
+    (select id from public.resource where name = 'gold'),
+    10,
+    0.0
+  );
+
+-- building type requirements: Market
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'market'),
+    (select id from public.resource where name = 'wood'),
+    50,
+    0.5
+  );
+
+INSERT  INTO  public.requirement(id, building_type_id, resource_id, quantity, recovery_coef)
+VALUES
+  (
+    (select nextval('requirement_seq')),
+    (select id from public.building_type where name = 'market'),
+    (select id from public.resource where name = 'stone'),
+    30,
     0.5
   );
 
@@ -386,7 +486,7 @@ INSERT  INTO public.production(id, building_type_id, resource_id, quantity)
         (select nextval('production_seq')),
         (select id from public.building_type where name = 'castle'),
         (select id from public.resource where name = 'gold'),
-        6
+        10
       );
 
 -- building type production: House
@@ -408,7 +508,7 @@ VALUES
     (select nextval('production_seq')),
     (select id from public.building_type where name = 'archery'),
     (select id from public.resource where name = 'gold'),
-    -1
+    -2
   );
 
 --building type productions: Barracks
@@ -419,7 +519,7 @@ VALUES
     (select nextval('production_seq')),
     (select id from public.building_type where name = 'barracks'),
     (select id from public.resource where name = 'gold'),
-    -1
+    -2
   );
 
 -- building type production: Stables
@@ -430,5 +530,45 @@ VALUES
     (select nextval('production_seq')),
     (select id from public.building_type where name = 'stables'),
     (select id from public.resource where name = 'gold'),
+    -4
+  );
+
+-- building type production: Farm
+
+INSERT  INTO public.production(id, building_type_id, resource_id, quantity)
+VALUES
+  (
+    (select nextval('production_seq')),
+    (select id from public.building_type where name = 'farm'),
+    (select id from public.resource where name = 'gold'),
     -1
+  );
+
+INSERT  INTO public.production(id, building_type_id, resource_id, quantity)
+VALUES
+  (
+    (select nextval('production_seq')),
+    (select id from public.building_type where name = 'farm'),
+    (select id from public.resource where name = 'food'),
+    60
+  );
+
+-- building type production: Market
+
+INSERT  INTO public.production(id, building_type_id, resource_id, quantity)
+VALUES
+  (
+    (select nextval('production_seq')),
+    (select id from public.building_type where name = 'market'),
+    (select id from public.resource where name = 'gold'),
+    30
+  );
+
+INSERT  INTO public.production(id, building_type_id, resource_id, quantity)
+VALUES
+  (
+    (select nextval('production_seq')),
+    (select id from public.building_type where name = 'market'),
+    (select id from public.resource where name = 'food'),
+    -10
   );

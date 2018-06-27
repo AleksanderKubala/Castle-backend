@@ -5,6 +5,7 @@ import com.example.demo.Model.Garrison.Garrison;
 import com.example.demo.Model.Resource.Resource;
 import com.example.demo.Model.Storage.Storage;
 import com.example.demo.Model.Unit.Unit;
+import com.example.demo.Properties.BattleProperties;
 import com.example.demo.REST.ModelREST.ModelServices.*;
 import com.example.demo.REST.Requests.GarrisonRequest;
 import com.example.demo.REST.Responses.BattleResponse;
@@ -17,6 +18,7 @@ import java.util.*;
 public class BattleService extends CityManagementService {
 
     private UnitService unitService;
+    private BattleProperties battleProperties;
 
     @Autowired
     protected BattleService(
@@ -25,10 +27,12 @@ public class BattleService extends CityManagementService {
             RequirementService requirementService,
             ProductionService productionService,
             GarrisonService garrisonService,
-            UnitService unitService
+            UnitService unitService,
+            BattleProperties battleProperties
     ) {
         super(cityService, storageService, requirementService, productionService, garrisonService);
         this.unitService = unitService;
+        this.battleProperties = battleProperties;
     }
 
     public BattleResponse resolveBattle(
@@ -75,8 +79,12 @@ public class BattleService extends CityManagementService {
         }
         attackLosses = countCasualties(attackTroops, attackLosses);
         targetLosses = countCasualties(targetTroops, targetLosses);
-        applyLosses(attacker.get(), attackLosses);
-        applyLosses(target.get(), targetLosses);
+        healTroops(attackTroops);
+        healTroops(targetTroops);
+        garrisonService.updateGarrison(attackTroops);
+        garrisonService.updateGarrison(targetTroops);
+        //applyLosses(attacker.get(), attackLosses);
+        //applyLosses(target.get(), targetLosses);
 
         for(Garrison troop: attackLosses) {
             depleteResources(attacker.get(), troop.getUnit(), Math.abs(troop.getQuantity()), true);
@@ -131,7 +139,7 @@ public class BattleService extends CityManagementService {
 
         Random random = new Random();
         Garrison receiver = attacked.get(random.nextInt(troopIndex.size()));
-        double luck = 0.75 + random.nextDouble()*0.5;
+        double luck = battleProperties.getMinimumMultiplierValue() + random.nextDouble()*battleProperties.getMultiplierValueRange();
         int damage = ((int)(attacker.getQuantity()*attacker.getUnit().getStrength()*luck));
         int leftHealth = receiver.getTotalHealth() - damage;
         if(leftHealth < 0)
@@ -153,14 +161,11 @@ public class BattleService extends CityManagementService {
         return original;
     }
 
-    private void applyLosses(City city, List<Garrison> losses) {
-        List<Garrison> cityGarrison = garrisonService.retrieveCityGarrison(city);
-        for(Garrison loss: losses) {
-            Garrison cityTroop = cityGarrison.get(cityGarrison.indexOf(loss));
-            cityTroop.setQuantity(cityTroop.getQuantity() + loss.getQuantity());
-            cityTroop.setTotalHealth(cityTroop.getQuantity()*cityTroop.getUnit().getHealth());
+
+    private void healTroops(List<Garrison> remains) {
+        for(Garrison remain: remains) {
+            remain.setTotalHealth(remain.getQuantity()*remain.getUnit().getHealth());
         }
-        garrisonService.updateGarrison(cityGarrison);
     }
 
     private List<Storage> plunder(City target, List<Garrison> attackTroops, List<Resource> toPlunder) {

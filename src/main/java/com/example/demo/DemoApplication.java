@@ -1,6 +1,8 @@
 package com.example.demo;
 
+import com.example.demo.Properties.BattleProperties;
 import com.example.demo.Properties.SecurityProperties;
+import com.example.demo.Properties.StorageUpdateProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -56,6 +58,16 @@ public class DemoApplication implements WebSocketMessageBrokerConfigurer {
 	@Bean
 	public SecurityProperties securityProperties() {
 		return new SecurityProperties();
+	}
+
+	@Bean
+	public StorageUpdateProperties updateProperties() {
+		return new StorageUpdateProperties();
+	}
+
+	@Bean
+	public BattleProperties battleProperties() {
+		return new BattleProperties();
 	}
 
 }
