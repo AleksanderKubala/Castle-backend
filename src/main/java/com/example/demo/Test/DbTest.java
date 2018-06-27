@@ -105,23 +105,23 @@ public class DbTest implements CommandLineRunner{
     }
 
     private void init() {
-        initUnits();
-        initResources();
-        initTerrain();
-        initWorld();
-        initPlayer();
-        initBuildingTypes();
-        initStructureTypes();
+        //initUnits();
+        //initResources();
+        //initTerrain();
+        //initWorld();
+        //initPlayer();
+        //initBuildingTypes();
+        //initStructureTypes();
         initWorldTiles();
-        initCity();
-        initCityTiles();
-        initCityStorage();
-        initCityProduction();
-        initBuildingProductions();
-        initBuildingRequirements();
-        initGarrison();
-        initUnitRequirements();
-        initUnitProduction();
+        //initCity();
+        //initCityTiles();
+        //initCityStorage();
+        //initCityProduction();
+        //initBuildingProductions();
+        //initBuildingRequirements();
+        //initGarrison();
+        //initUnitRequirements();
+        //initUnitProduction();
     }
 
 
@@ -236,6 +236,7 @@ public class DbTest implements CommandLineRunner{
                 ResourceTypes.HAPPINESS.poolResource
         };
         Boolean[] plunderableValues = new Boolean[] {true, true, true, true, false, false};
+        Boolean[] loanableValues = new Boolean[] {false, false, true, false, false, false};
         List<Resource> resources = new ArrayList<>();
 
         for(int i = 0; i < names.length; i++) {
@@ -244,6 +245,7 @@ public class DbTest implements CommandLineRunner{
             resource.setPlunderable(plunderableValues[i]);
             resource.setStartingVolume(startingVolumes[i]);
             resource.setPoolResource(poolResouces[i]);
+            resource.setLoanable(loanableValues[i]);
             resources.add(resource);
         }
 

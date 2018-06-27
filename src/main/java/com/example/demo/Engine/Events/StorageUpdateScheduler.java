@@ -12,7 +12,7 @@ public class StorageUpdateScheduler extends Observable implements Runnable {
     private boolean done;
 
     public StorageUpdateScheduler() {
-        done = true;
+        done = false;
         new Thread(this).start();
     }
 

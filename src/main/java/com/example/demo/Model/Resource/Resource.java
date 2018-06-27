@@ -32,6 +32,9 @@ public class Resource {
     @NotNull
     private Boolean poolResource;
 
+    @NotNull
+    private Boolean loanable;
+
     @Override
     public boolean equals(Object o) {
         if(o == null)

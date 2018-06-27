@@ -6,8 +6,10 @@ import com.example.demo.Model.Storage.Storage;
 import com.example.demo.REST.ModelREST.ModelResponses.CityResponse;
 import com.example.demo.REST.ModelREST.ModelServices.CityService;
 import com.example.demo.REST.ModelREST.ModelServices.StorageService;
+import com.example.demo.REST.Responses.UpdateResponse;
 import com.example.demo.REST.Services.StorageUpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,30 +23,32 @@ import java.util.concurrent.CompletableFuture;
 @RestController
 public class StorageUpdateController {
 
-    private StorageUpdateService storageUpdateService;
+    private SimpMessagingTemplate template;
     private CityService cityService;
     private StorageService storageService;
 
     @Autowired
     public StorageUpdateController(
-            StorageUpdateService storageUpdateService,
+            SimpMessagingTemplate template,
             CityService cityService,
             StorageService storageService) {
+        this.template = template;
         this.cityService = cityService;
         this.storageService = storageService;
-        this.storageUpdateService = storageUpdateService;
     }
 
+    public void sendUpdate() {
+        List<City> cities = cityService.retrieveAllCities();
+        List<CityResponse> cityResponse = new ArrayList<>();
 
+        for(City city: cities) {
+            List<Storage> storage = storageService.retrieveCityStorage(city);
+            cityResponse.add(CityResponse.createResponse(city, storage));
+        }
 
-    /*
-    @GetMapping("/update")
-    public @ResponseBody Callable<List<CityResponse>> getStorageUpdate() {
-        Callable<List<CityResponse>> callable = storageUpdateService;
+        UpdateResponse response = new UpdateResponse(cityResponse);
 
-
-        return callable;
+        this.template.convertAndSend("/update", response);
     }
-    */
 
 }

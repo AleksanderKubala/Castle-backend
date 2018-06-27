@@ -85,7 +85,10 @@ public class GameEventCalendar extends Observable implements Runnable, Observer 
     private long countTimeDifference(LocalDateTime time) {
         int secondsOfTime = time.toLocalTime().toSecondOfDay();
         int secondsOfNow = LocalDateTime.now().toLocalTime().toSecondOfDay();
-        return (secondsOfTime - secondsOfNow)*1000;
+        int difference = (secondsOfTime - secondsOfNow)*1000;
+        if(difference < 0)
+            difference = 0;
+        return difference;
     }
 
 }

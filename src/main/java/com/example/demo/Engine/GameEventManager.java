@@ -3,7 +3,9 @@ package com.example.demo.Engine;
 import com.example.demo.Engine.Events.GameEvent;
 import com.example.demo.Model.City.City;
 import com.example.demo.Model.Production.Production;
+import com.example.demo.Model.Resource.Resource;
 import com.example.demo.Model.Storage.Storage;
+import com.example.demo.REST.Controllers.StorageUpdateController;
 import com.example.demo.REST.ModelREST.ModelServices.CityService;
 import com.example.demo.REST.ModelREST.ModelServices.ProductionService;
 import com.example.demo.REST.ModelREST.ModelServices.StorageService;
@@ -20,7 +22,7 @@ public class GameEventManager extends Observable implements Runnable {
     private CityService cityService;
     private StorageService storageService;
     private ProductionService productionService;
-    private GreetingController controller;
+    private StorageUpdateController controller;
     private List<GameEvent> pendingEvents;
     private final Object semaphore = new Object();
     private final Object updateSemaphore = new Object();
@@ -35,7 +37,7 @@ public class GameEventManager extends Observable implements Runnable {
             CityService cityService,
             StorageService storageService,
             ProductionService productionService,
-            GreetingController controller) {
+            StorageUpdateController controller) {
         this.cityService = cityService;
         this.storageService = storageService;
         this.productionService = productionService;
@@ -55,7 +57,7 @@ public class GameEventManager extends Observable implements Runnable {
             if(pendingEvents.size() > 0) {
                 GameEvent event = fetchEvent();
                 handleEvent(event);
-                controller.fireGreeting();
+                controller.sendUpdate();
             } else {
                 try {
                     Thread.sleep(sleepTime * 1000);
@@ -130,7 +132,12 @@ public class GameEventManager extends Observable implements Runnable {
             for(Production production: productions) {
                 for(Storage storage: cityStorages) {
                     if(storage.getResource().equals(production.getResource())) {
-                        storage.setQuantity(storage.getQuantity() + production.getQuantity());
+                        Resource resource = storage.getResource();
+                        int quantity = storage.getQuantity() + production.getQuantity();
+                        if(quantity < 0) {
+                            quantity = resource.getLoanable() ? quantity : 0;
+                        }
+                        storage.setQuantity(quantity);
                         storages.add(storage);
                     }
                 }
